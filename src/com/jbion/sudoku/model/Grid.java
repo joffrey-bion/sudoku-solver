@@ -1,4 +1,4 @@
-package model;
+package com.jbion.sudoku.model;
 
 import java.util.LinkedList;
 
@@ -57,18 +57,19 @@ public class Grid {
         }
     }
 
-    private static final String H = BoxDrawing.LIGHT_HORIZONTAL + "";
-    private static final String V = BoxDrawing.LIGHT_VERTICAL + "";
+    private static final String LF = BoxDrawing.NEW_LINE + "";
+    private static final String H = BoxDrawing.BOX_DRAWINGS_LIGHT_HORIZONTAL + "";
+    private static final String V = BoxDrawing.BOX_DRAWINGS_LIGHT_VERTICAL + "";
     private static final String H5 = H + H + H + H + H;
-    private static final char ULC = BoxDrawing.LIGHT_DOWN_AND_RIGHT;
-    private static final char DLC = BoxDrawing.LIGHT_UP_AND_RIGHT;
-    private static final char URC = BoxDrawing.LIGHT_DOWN_AND_LEFT;
-    private static final char DRC = BoxDrawing.LIGHT_UP_AND_LEFT;
-    private static final char DTEE = BoxDrawing.LIGHT_DOWN_AND_HORIZONTAL;
-    private static final char UTEE = BoxDrawing.LIGHT_UP_AND_HORIZONTAL;
-    private static final char RTEE = BoxDrawing.LIGHT_VERTICAL_AND_RIGHT;
-    private static final char LTEE = BoxDrawing.LIGHT_VERTICAL_AND_LEFT;
-    private static final char CROSS = BoxDrawing.LIGHT_VERTICAL_AND_HORIZONTAL;
+    private static final char ULC = BoxDrawing.BOX_DRAWINGS_LIGHT_DOWN_AND_RIGHT;
+    private static final char DLC = BoxDrawing.BOX_DRAWINGS_LIGHT_UP_AND_RIGHT;
+    private static final char URC = BoxDrawing.BOX_DRAWINGS_LIGHT_DOWN_AND_LEFT;
+    private static final char DRC = BoxDrawing.BOX_DRAWINGS_LIGHT_UP_AND_LEFT;
+    private static final char DTEE = BoxDrawing.BOX_DRAWINGS_LIGHT_DOWN_AND_HORIZONTAL;
+    private static final char UTEE = BoxDrawing.BOX_DRAWINGS_LIGHT_UP_AND_HORIZONTAL;
+    private static final char RTEE = BoxDrawing.BOX_DRAWINGS_LIGHT_VERTICAL_AND_RIGHT;
+    private static final char LTEE = BoxDrawing.BOX_DRAWINGS_LIGHT_VERTICAL_AND_LEFT;
+    private static final char CROSS = BoxDrawing.BOX_DRAWINGS_LIGHT_VERTICAL_AND_HORIZONTAL;
 
     /**
      * Prints the grid with fancy lines.
@@ -76,7 +77,7 @@ public class Grid {
     @Override
     public String toString() {
 
-        String res = ULC + H5 + DTEE + H5 + DTEE + H5 + URC + "\n";
+        String res = ULC + H5 + DTEE + H5 + DTEE + H5 + URC + LF;
         for (int i = 0; i < N; i++) {
             res = res.concat(V);
             for (int j = 0; j < N; j++) {
@@ -87,9 +88,9 @@ public class Grid {
                     res = res.concat(" ");
                 }
             }
-            res = res.concat("\n");
+            res = res.concat(LF);
             if (i == 2 || i == 5) {
-                res = res.concat(RTEE + H5 + CROSS + H5 + CROSS + H5 + LTEE + "\n");
+                res = res.concat(RTEE + H5 + CROSS + H5 + CROSS + H5 + LTEE + LF);
             }
         }
         res = res.concat(DLC + H5 + UTEE + H5 + UTEE + H5 + DRC);

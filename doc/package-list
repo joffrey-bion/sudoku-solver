@@ -1,2 +1,2 @@
-model
-solver
+com.jbion.sudoku.model
+com.jbion.sudoku.solver

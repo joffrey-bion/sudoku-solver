@@ -1,10 +1,11 @@
-package solver;
+package com.jbion.sudoku.solver;
 
 import java.util.Arrays;
 import java.util.LinkedList;
-import model.Grid;
-import model.TestGrids;
-import model.Tile;
+
+import com.jbion.sudoku.model.Grid;
+import com.jbion.sudoku.model.TestGrids;
+import com.jbion.sudoku.model.Tile;
 
 public class Solver {
 
@@ -12,6 +13,22 @@ public class Solver {
     public static boolean H = true; // use heuristics MCV1 and MCV2
     public static boolean H3 = true; // use heuristic LCV
 
+    public static void main(String[] args) {
+        Solver solver = new Solver();
+        if (args.length != 0) {
+            solver.solveAndPrintStats(args);
+            return;
+        }
+        System.out.println("== EASY GRID =======================");
+        solver.solveAndPrintStats(TestGrids.easyGrid);
+        System.out.println("\n== MEDIUM GRID =====================");
+        solver.solveAndPrintStats(TestGrids.mediumGrid);
+        System.out.println("\n== HARD GRID =======================");
+        solver.solveAndPrintStats(TestGrids.hardGrid);
+        System.out.println("\n== EVIL GRID =======================");
+        solver.solveAndPrintStats(TestGrids.evilGrid);
+    }
+    
     /**
      * Prepares the grid, solve the grid and print the execution time and number of
      * visited nodes.
@@ -247,21 +264,5 @@ public class Solver {
         if (FC) {
             tile.restoreValueInSisters(value);
         }
-    }
-
-    public static void main(String[] args) {
-        Solver solver = new Solver();
-        if (args.length != 0) {
-            solver.solveAndPrintStats(args);
-            return;
-        }
-        System.out.println("== EASY GRID =======================");
-        solver.solveAndPrintStats(TestGrids.easyGrid);
-        System.out.println("\n== MEDIUM GRID =====================");
-        solver.solveAndPrintStats(TestGrids.mediumGrid);
-        System.out.println("\n== HARD GRID =======================");
-        solver.solveAndPrintStats(TestGrids.hardGrid);
-        System.out.println("\n== EVIL GRID =======================");
-        solver.solveAndPrintStats(TestGrids.evilGrid);
     }
 }

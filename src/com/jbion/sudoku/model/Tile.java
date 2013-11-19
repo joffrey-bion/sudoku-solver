@@ -1,4 +1,4 @@
-package model;
+package com.jbion.sudoku.model;
 
 import java.util.HashSet;
 
