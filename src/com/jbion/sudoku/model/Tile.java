@@ -2,28 +2,128 @@ package com.jbion.sudoku.model;
 
 import java.util.HashSet;
 
+/**
+ * Represents one tile in a Sudoku {@link Grid}.
+ * 
+ * @author <a href="mailto:joffrey.bion@gmail.com">Joffrey Bion</a>
+ */
 public class Tile {
 
+    /**
+     * The {@link Grid} containing this {@code Tile}.
+     */
     public Grid grid;
-    public Integer currentValue;
+    /**
+     * The possible values for this {@code Tile}. This set has to be manually
+     * updated. This is to fully separate the solver's logic from the model's logic.
+     */
     public HashSet<Integer> possibleValues; // used by forward checking
 
-    private Integer row;
-    private Integer col;
+    /**
+     * The current value of this {@code Tile}. 0 represents an empty {@code Tile}.
+     */
+    private int currentValue;
+    private int row;
+    private int col;
     private HashSet<Tile> sisters;
 
-    public Tile(Grid grid, int row, int col, int value) {
+    /**
+     * Creates a new empty {@code Tile} at the specified position.
+     * 
+     * @param grid
+     *            The parent {@link Grid} for this {@code Tile}.
+     * @param row
+     *            The row of this {@code Tile} in the grid.
+     * @param col
+     *            The column of this {@code Tile} in the grid.
+     */
+    public Tile(Grid grid, int row, int col) {
         this.grid = grid;
         this.row = row;
         this.col = col;
-        this.currentValue = value;
-
         possibleValues = new HashSet<>();
-        if (value == 0) {
-            for (int i = 1; i <= 9; i++) {
-                possibleValues.add(i);
-            }
+        for (int i = 1; i <= Grid.SIZE; i++) {
+            possibleValues.add(i);
         }
+    }
+
+    /**
+     * Creates a new {@code Tile} at the specified position with the specified value.
+     * 
+     * @param grid
+     *            The parent {@link Grid} for this {@code Tile}.
+     * @param row
+     *            The row of this {@code Tile} in the grid.
+     * @param col
+     *            The column of this {@code Tile} in the grid.
+     * @param value
+     *            The initial value for this {@code Tile}.
+     */
+    public Tile(Grid grid, int row, int col, int value) {
+        this(grid, row, col);
+        this.setValue(value);
+        possibleValues.clear();
+    }
+
+    /**
+     * Sets the tiles which are either in the same row or column or region as this
+     * tile.
+     */
+    void setSisters(HashSet<Tile> sisters) {
+        this.sisters = sisters;
+    }
+
+    /**
+     * Gives the tiles which are either in the same row or column or region as this
+     * tile.
+     * 
+     * @return A set of the sisters of this {@code Tile}.
+     */
+    public HashSet<Tile> getSisters() {
+        return sisters;
+    }
+
+    /**
+     * Returns the current value of this {@code Tile}.
+     * 
+     * @return the current value of this {@code Tile}.
+     */
+    public int getValue() {
+        if (currentValue == 0) {
+            throw new RuntimeException("Cannot get the value from an empty tile.");
+        }
+        return currentValue;
+    }
+
+    /**
+     * Sets the value of this {@code Tile}.
+     * 
+     * @param value
+     *            The value to give to this {@code Tile}.
+     */
+    public void setValue(int value) {
+        if (value < 1 || value > Grid.SIZE) {
+            throw new IllegalArgumentException("The value must be between 1 and " + Grid.SIZE);
+        }
+        this.currentValue = value;
+        grid.getEmptyTiles().remove(this);
+    }
+
+    /**
+     * Returns whether this {@code Tile} is empty.
+     * 
+     * @return {@code true} if this {@code Tile} is empty, {@code false} otherwise.
+     */
+    public boolean isEmpty() {
+        return currentValue == 0;
+    }
+
+    /**
+     * Sets this tile as empty.
+     */
+    public void setEmpty() {
+        this.currentValue = 0;
+        grid.getEmptyTiles().add(this);
     }
 
     /**
@@ -36,26 +136,25 @@ public class Tile {
      *         grid.
      */
     public boolean isConsistent(int value) {
-        boolean res = true;
-        // check the sisters
         for (Tile sister : getSisters()) {
-            res = res && (sister.currentValue != value);
+            if (sister.currentValue == value) {
+                return false;
+            }
         }
-        return res;
+        return true;
     }
 
     /**
-     * Remove the value from the list of possibilities of the sisters.
+     * Remove this {@code Tile}'s current value from the list of possibilities of its
+     * sisters.
      * 
-     * @param value
-     *            The value to remove.
      * @return {@code true} if success, {@code false} if one of the sisters has no
      *         more possible values.
      */
-    public boolean removeValueFromSisters(int value) {
+    public boolean removeValueFromSisters() {
         for (Tile sister : getSisters()) {
-            if (sister.currentValue == 0) {
-                sister.possibleValues.remove(value);
+            if (sister.isEmpty()) {
+                sister.possibleValues.remove(currentValue);
                 if (sister.possibleValues.isEmpty()) {
                     return false;
                 }
@@ -80,39 +179,6 @@ public class Tile {
     }
 
     /**
-     * Gives the tiles which are either in the same row or column or region as this
-     * tile.
-     * 
-     * @return A set of the sisters of this tile.
-     */
-    public HashSet<Tile> getSisters() {
-        if (sisters != null)
-            return sisters;
-        sisters = new HashSet<>();
-        // get the row
-        for (int j = 0; j < 9; j++) {
-            sisters.add(grid.tiles[row][j]);
-        }
-        // get the column
-        for (int i = 0; i < 9; i++) {
-            sisters.add(grid.tiles[i][col]);
-        }
-        // get the region
-        int baserow = (row / 3) * 3;
-        int basecol = (col / 3) * 3;
-        for (int i = 0; i < 3; i++) {
-            if (baserow + i == row)
-                continue;
-            for (int j = 0; j < 3; j++) {
-                if (basecol + j == col)
-                    continue;
-                sisters.add(grid.tiles[baserow + i][basecol + j]);
-            }
-        }
-        return sisters;
-    }
-
-    /**
      * Gives the number of empty tiles which are sisters of this tile.
      * 
      * @return The number of empty tiles which are either on the same row, column or
@@ -121,8 +187,9 @@ public class Tile {
     public int getNbOfEmptySisters() {
         int result = 0;
         for (Tile t : this.getSisters()) {
-            if (t.currentValue == 0)
+            if (t.currentValue == 0) {
                 result++;
+            }
         }
         return result;
     }
@@ -144,7 +211,7 @@ public class Tile {
         if (currentValue == 0) {
             return " ";
         } else {
-            return currentValue.toString();
+            return String.valueOf(currentValue);
         }
     }
 }

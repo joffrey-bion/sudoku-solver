@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 import com.jbion.sudoku.model.Grid;
-import com.jbion.sudoku.model.TestGrids;
 import com.jbion.sudoku.model.Tile;
 
 public class Solver {
@@ -13,22 +12,6 @@ public class Solver {
     public static boolean H = true; // use heuristics MCV1 and MCV2
     public static boolean H3 = true; // use heuristic LCV
 
-    public static void main(String[] args) {
-        Solver solver = new Solver();
-        if (args.length != 0) {
-            solver.solveAndPrintStats(args);
-            return;
-        }
-        System.out.println("== EASY GRID =======================");
-        solver.solveAndPrintStats(TestGrids.easyGrid);
-        System.out.println("\n== MEDIUM GRID =====================");
-        solver.solveAndPrintStats(TestGrids.mediumGrid);
-        System.out.println("\n== HARD GRID =======================");
-        solver.solveAndPrintStats(TestGrids.hardGrid);
-        System.out.println("\n== EVIL GRID =======================");
-        solver.solveAndPrintStats(TestGrids.evilGrid);
-    }
-    
     /**
      * Prepares the grid, solve the grid and print the execution time and number of
      * visited nodes.
@@ -45,11 +28,11 @@ public class Solver {
             System.err.println("INPUT ERROR: " + e.getMessage());
             return;
         }
-        System.out.println(grid);
+        //System.out.println(grid);
         long startTime = System.nanoTime();
         Assignment solution = solve(grid);
         long executionTime = System.nanoTime() - startTime;
-        System.out.println(solution);
+        //System.out.println(solution);
         System.out.println(solution.nbVisitedNodes + " nodes have been visited");
         System.out.println("Execution time: " + executionTime / 1000000 + " ms");
     }
@@ -67,16 +50,8 @@ public class Solver {
         if (FC) {
             // find the clue-tiles and remove the possible values in the impacted
             // empty tiles before starting the search.
-            for (Tile[] row : Arrays.asList(grid.tiles)) {
-                for (Tile tile : Arrays.asList(row)) {
-                    if (tile.currentValue == 0) {
-                        continue; // do not consider empty tiles
-                    }
-                    boolean success = tile.removeValueFromSisters(tile.currentValue);
-                    if (!success) {
-                        throw new RuntimeException("Incorrect clues in the given grid");
-                    }
-                }
+            if (!grid.clearImpossibleValues()) {
+                throw new RuntimeException("Incorrect clues in the given grid.");
             }
         }
         // Start recursive backtracking search
@@ -107,8 +82,7 @@ public class Solver {
             // Check whether the value is consistent in the current grid.
             if (!FC && !tile.isConsistent(value)) {
                 // This test is not necessary when forward-checking is enabled, since
-                // FC reduces
-                // the set of possible values during the search
+                // FC reduces the set of possible values during the search
                 continue;
             }
 
@@ -139,14 +113,14 @@ public class Solver {
     private static Tile selectUnassignedVariable(Grid grid) {
         // Without heuristics, take the first one which comes
         if (!H) {
-            return grid.emptyTiles.getFirst();
+            return grid.getEmptyTiles().getFirst();
         }
 
         // MOST CONSTRAINED VARIABLE heuristic
         // We try here to choose a tile with the fewest possible values
         int minLCV = 9;
         LinkedList<Tile> listLCV = new LinkedList<>();
-        for (Tile tile : grid.emptyTiles) {
+        for (Tile tile : grid.getEmptyTiles()) {
             int size = tile.possibleValues.size();
             if (size == minLCV) {
                 listLCV.add(tile);
@@ -196,7 +170,7 @@ public class Solver {
         Arrays.fill(nbImpacted, 0);
         for (int value : tile.possibleValues) {
             for (Tile sister : tile.getSisters()) {
-                if (sister.currentValue != 0)
+                if (!sister.isEmpty())
                     continue; // skip the filled sisters
                 if (sister.possibleValues.contains(value))
                     nbImpacted[value - 1]++;
@@ -236,13 +210,12 @@ public class Solver {
      *         sisters has no more possible values, {@code true} otherwise.
      */
     private static boolean assignValue(Tile tile, int value) {
-        tile.currentValue = value;
-        tile.grid.emptyTiles.remove(tile);
+        tile.setValue(value);
 
         // FORWARD CHECKING
         // Propagate the constraints right now to foresee the problems
         if (FC) {
-            return tile.removeValueFromSisters(value);
+            return tile.removeValueFromSisters();
         }
         return true;
     }
@@ -255,9 +228,8 @@ public class Solver {
      *            The tile to be cleared
      */
     private static void unassignValue(Tile tile) {
-        int value = tile.currentValue;
-        tile.currentValue = 0;
-        tile.grid.emptyTiles.add(tile);
+        int value = tile.getValue();
+        tile.setEmpty();
 
         // FORWARD CHECKING
         // Restore the possibilities that had been removed

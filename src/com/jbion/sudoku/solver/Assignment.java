@@ -3,6 +3,7 @@ package com.jbion.sudoku.solver;
 import com.jbion.sudoku.model.Grid;
 
 public class Assignment {
+    
     public Grid grid;
     public int nbVisitedNodes;
     
@@ -13,7 +14,7 @@ public class Assignment {
     }
     
     public boolean isSolution() {
-        return grid != null && grid.emptyTiles.isEmpty();
+        return grid != null && grid.getEmptyTiles().isEmpty();
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.jbion.sudoku.model;
+package com.jbion.sudoku.test;
 
 public class TestGrids {
 

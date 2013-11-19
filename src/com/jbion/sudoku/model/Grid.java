@@ -1,15 +1,29 @@
 package com.jbion.sudoku.model;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 
 import com.jbion.utils.strings.BoxDrawing;
 
+/**
+ * Represents a grid of Sudoku.
+ * 
+ * @author <a href="mailto:joffrey.bion@gmail.com">Joffrey Bion</a>
+ */
 public class Grid {
 
-    private static final int N = 9; // size of the grid
+    /**
+     * Size of the grids.
+     */
+    static final int SIZE = 9;
+    /**
+     * Size of the regions within each grid.
+     */
+    static final int RSIZE = 3;
 
-    public Tile[][] tiles;
-    public LinkedList<Tile> emptyTiles;
+    private Tile[][] tiles;
+    private LinkedList<Tile> emptyTiles;
 
     /**
      * Creates a new {@code Grid} containing the specified numbers.
@@ -24,37 +38,128 @@ public class Grid {
      */
     public Grid(String[] numbers) {
         // Deal with obvious input errors
-        if (numbers.length < N * N)
+        if (numbers.length < SIZE * SIZE)
             throw new IllegalArgumentException(
                     "too few input digits (blanks must be given by zeros)");
-        if (numbers.length > N * N)
-            throw new IllegalArgumentException("too many input digits, only " + N * N
+        if (numbers.length > SIZE * SIZE)
+            throw new IllegalArgumentException("too many input digits, only " + SIZE * SIZE
                     + " are needed");
 
         // Start initialization
         emptyTiles = new LinkedList<>();
-        tiles = new Tile[N][N];
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
+        tiles = new Tile[SIZE][SIZE];
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
                 // parse the value at the position (i,j)
                 int value;
                 try {
-                    value = Integer.parseInt(numbers[N * i + j]);
+                    value = Integer.parseInt(numbers[SIZE * i + j]);
                 } catch (NumberFormatException e) {
                     throw new IllegalArgumentException("wrong input, only digits are accepted");
                 }
                 // create the tile at the position (i,j)
                 if (value == 0) {
-                    tiles[i][j] = new Tile(this, i, j, value);
+                    tiles[i][j] = new Tile(this, i, j);
                     emptyTiles.add(tiles[i][j]);
-                } else if (0 < value && value <= N) {
+                } else if (0 < value && value <= SIZE) {
                     tiles[i][j] = new Tile(this, i, j, value);
                 } else {
-                    throw new IllegalArgumentException("wrong input, only digits from 0 to " + N
+                    throw new IllegalArgumentException("wrong input, only digits from 0 to " + SIZE
                             + " are accepted");
                 }
             }
         }
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                tiles[i][j].setSisters(getSisters(i, j));
+            }
+        }
+    }
+
+    /**
+     * Gives the tiles which are either in the same row or column or region as the
+     * specified coordinates.
+     * 
+     * @return A set of the sisters of this tile.
+     */
+    HashSet<Tile> getSisters(int row, int col) {
+        HashSet<Tile> sisters = new HashSet<>();
+        // add the row
+        for (int j = 0; j < Grid.SIZE; j++) {
+            if (j == col) {
+                continue;
+            }
+            sisters.add(tiles[row][j]);
+        }
+        // add the column
+        for (int i = 0; i < Grid.SIZE; i++) {
+            if (i == row) {
+                continue;
+            }
+            sisters.add(tiles[i][col]);
+        }
+        // add the region
+        int baserow = (row / Grid.RSIZE) * Grid.RSIZE;
+        int basecol = (col / Grid.RSIZE) * Grid.RSIZE;
+        for (int i = 0; i < Grid.RSIZE; i++) {
+            if (baserow + i == row) {
+                continue; // skips the row, already added
+            }
+            for (int j = 0; j < Grid.RSIZE; j++) {
+                if (basecol + j == col) {
+                    continue; // skips the column, already added
+                }
+                sisters.add(tiles[baserow + i][basecol + j]);
+            }
+        }
+        return sisters;
+    }
+
+    /**
+     * Iterates on complete {@link Tile}s and remove the corresponding value in the
+     * empty sister {@code Tile}s.
+     * 
+     * @return {@code false} if an empty {@link Tile} ends up with no possible value.
+     */
+    public boolean clearImpossibleValues() {
+        for (Tile[] row : Arrays.asList(tiles)) {
+            for (Tile tile : Arrays.asList(row)) {
+                if (tile.isEmpty()) {
+                    continue; // do not consider empty tiles
+                }
+                if (!tile.removeValueFromSisters()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Returns the matrix of the tiles of this {@code Grid}.
+     * 
+     * @return the matrix of the tiles of this {@code Grid}.
+     */
+    Tile[][] getTiles() {
+        return tiles;
+    }
+
+    /**
+     * Returns the list of the empty tiles of this {@code Grid}.
+     * 
+     * @return the list of the empty tiles of this {@code Grid}.
+     */
+    public LinkedList<Tile> getEmptyTiles() {
+        return emptyTiles;
+    }
+
+    /**
+     * Returns whether this {@code Grid} is complete.
+     * 
+     * @return {@code true} if all tiles have a value, {@code false} otherwise.
+     */
+    public boolean isFull() {
+        return emptyTiles.isEmpty();
     }
 
     private static final String LF = BoxDrawing.NEW_LINE + "";
@@ -78,18 +183,18 @@ public class Grid {
     public String toString() {
 
         String res = ULC + H5 + DTEE + H5 + DTEE + H5 + URC + LF;
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < SIZE; i++) {
             res = res.concat(V);
-            for (int j = 0; j < N; j++) {
+            for (int j = 0; j < SIZE; j++) {
                 res = res.concat(tiles[i][j].toString());
-                if ((j + 1) % 3 == 0) {
+                if ((j + 1) % RSIZE == 0) {
                     res = res.concat(V);
                 } else {
                     res = res.concat(" ");
                 }
             }
             res = res.concat(LF);
-            if (i == 2 || i == 5) {
+            if (i % RSIZE == RSIZE - 1 && i != SIZE - 1) {
                 res = res.concat(RTEE + H5 + CROSS + H5 + CROSS + H5 + LTEE + LF);
             }
         }
@@ -101,10 +206,10 @@ public class Grid {
      * Prints the possible values for each tile of the grid.
      */
     public void printState() {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
                 Tile tile = tiles[i][j];
-                System.out.print("(" + i + "," + j + ") value = " + tile.currentValue
+                System.out.print("(" + i + "," + j + ") value = " + tile.getValue()
                         + " - possible: ");
                 for (int k : tile.possibleValues)
                     System.out.print(k + " ");
