@@ -13,11 +13,12 @@ public class Solver {
     public static boolean H3 = true; // use heuristic LCV
 
     /**
-     * Prepares the grid, solve the grid and print the execution time and number of visited nodes.
+     * Prepares the grid, solve the grid and print the execution time and number of
+     * visited nodes.
      * 
      * @param input
-     *            The list of all values in the initial grid, rows after rows, with 0 for the empty
-     *            tiles.
+     *            The list of all values in the initial grid, rows after rows, with 0
+     *            for the empty tiles.
      */
     public void solveAndPrintStats(String[] input) {
         Grid grid;
@@ -41,20 +42,20 @@ public class Solver {
      * 
      * @param grid
      *            The grid to solve.
-     * @return The Assignment object corresponding to the solution, or to the failure if no solution
-     *         were found.
+     * @return The Assignment object corresponding to the solution, or to the failure
+     *         if no solution were found.
      */
     public Assignment solve(Grid grid) {
         // Forward-Checking preparation
         if (FC) {
-            // find the clue-tiles and remove the possible values in the impacted empty tiles before
-            // starting the search.
+            // find the clue-tiles and remove the possible values in the impacted
+            // empty tiles before starting the search.
             for (Tile[] row : Arrays.asList(grid.tiles)) {
                 for (Tile tile : Arrays.asList(row)) {
-                    if (tile.value == 0) {
+                    if (tile.currentValue == 0) {
                         continue; // do not consider empty tiles
                     }
-                    boolean success = tile.removeValueFromSisters(tile.value);
+                    boolean success = tile.removeValueFromSisters(tile.currentValue);
                     if (!success) {
                         throw new RuntimeException("Incorrect clues in the given grid");
                     }
@@ -68,11 +69,13 @@ public class Solver {
     }
 
     /**
-     * Recursive backtracking search. If the forward checking is enabled, the possible values of the
-     * tiles must have been already updated due to the constraints of the clues.
+     * Recursive backtracking search. If the forward checking is enabled, the
+     * possible values of the tiles must have been already updated due to the
+     * constraints of the clues.
      * 
      * @param assignment
-     *            The current assignment containing the current grid. It will be modified.
+     *            The current assignment containing the current grid. It will be
+     *            modified.
      * @return Whether a solution has been found or not.
      */
     private boolean backtracking(Assignment assignment) {
@@ -86,7 +89,8 @@ public class Solver {
         for (int value : getOrderDomainValues(tile)) {
             // Check whether the value is consistent in the current grid.
             if (!FC && !tile.isConsistent(value)) {
-                // This test is not necessary when forward-checking is enabled, since FC reduces
+                // This test is not necessary when forward-checking is enabled, since
+                // FC reduces
                 // the set of possible values during the search
                 continue;
             }
@@ -101,7 +105,8 @@ public class Solver {
                 if (assignment.isSolution())
                     return true;
             }
-            // Clear the tile (remove the variable from assignment) to try other values
+            // Clear the tile (remove the variable from assignment) to try other
+            // values
             unassignValue(tile);
         }
         return false;
@@ -123,7 +128,7 @@ public class Solver {
         // MOST CONSTRAINED VARIABLE heuristic
         // We try here to choose a tile with the fewest possible values
         int minLCV = 9;
-        LinkedList<Tile> listLCV = new LinkedList<Tile>();
+        LinkedList<Tile> listLCV = new LinkedList<>();
         for (Tile tile : grid.emptyTiles) {
             int size = tile.possibleValues.size();
             if (size == minLCV) {
@@ -138,7 +143,7 @@ public class Solver {
         // MOST CONSTRAINING VARIABLE heuristic
         // We try here to choose a tile with the most empty sisters
         int maxMCV = 0;
-        LinkedList<Tile> listMCV = new LinkedList<Tile>();
+        LinkedList<Tile> listMCV = new LinkedList<>();
         for (Tile tile : listLCV) {
             // compute the number of empty sisters of 'tile'
             int size = tile.getNbOfEmptySisters();
@@ -156,37 +161,41 @@ public class Solver {
     /**
      * Gives an ordered list of values to test for the given tile.
      * 
-     * @param tile The tile we want to fill.
+     * @param tile
+     *            The tile we want to fill.
      * @return An LinkedList of values to try for the given tile, in the right order.
      */
     private static LinkedList<Integer> getOrderDomainValues(Tile tile) {
         if (!H3 || tile.possibleValues.size() <= 1) {
             // the second part of the test saves some time
-            return new LinkedList<Integer>(tile.possibleValues);
+            return new LinkedList<>(tile.possibleValues);
         }
         // Least Constraining Value
-        // For each possible value of the Tile, we count the number of possibilities which will be
-        // ruled out by the forward checking if we assign this value to this tile. That is the
-        // number of sisters having this value in their possibilities.
+        // For each possible value of the Tile, we count the number of possibilities
+        // which will be ruled out by the forward checking if we assign this value to
+        // this tile. That is the number of sisters having this value in their
+        // possibilities.
         Integer[] nbImpacted = new Integer[9];
         Arrays.fill(nbImpacted, 0);
         for (int value : tile.possibleValues) {
             for (Tile sister : tile.getSisters()) {
-                if (sister.value != 0)
+                if (sister.currentValue != 0)
                     continue; // skip the filled sisters
                 if (sister.possibleValues.contains(value))
                     nbImpacted[value - 1]++;
             }
         }
-        // Now we have to sort the possible values, choosing first those which have the less impact
-        // on the sisters, according to the numbers we have just computed.
+        // Now we have to sort the possible values, choosing first those which have
+        // the less impact on the sisters, according to the numbers we have just
+        // computed.
         Integer[] sortedNbImpacted = nbImpacted.clone();
         Arrays.sort(sortedNbImpacted);
-        LinkedList<Integer> sortedValues = new LinkedList<Integer>();
+        LinkedList<Integer> sortedValues = new LinkedList<>();
         for (int n : sortedNbImpacted) {
             if (n > 0) {
-                // we have to find the value corresponding to that number of impacted sisters,
-                // it corresponds to the index (+1) of that number in the first array
+                // we have to find the value corresponding to that number of impacted
+                // sisters, it corresponds to the index (+1) of that number in the
+                // first array
                 for (int i = 0; i < nbImpacted.length; i++) {
                     if (n == nbImpacted[i]) {
                         sortedValues.add(i + 1);
@@ -199,18 +208,18 @@ public class Solver {
     }
 
     /**
-     * Assign the given value to the given tile, and, if forward checking is enabled, update the
-     * sisters' possibilities.
+     * Assign the given value to the given tile, and, if forward checking is enabled,
+     * update the sisters' possibilities.
      * 
      * @param tile
      *            The tile to be filled
      * @param value
      *            The value to give to the tile
-     * @return {@code false} if the forward checking is enabled and one of the sisters has no more
-     *         possible values, {@code true} otherwise.
+     * @return {@code false} if the forward checking is enabled and one of the
+     *         sisters has no more possible values, {@code true} otherwise.
      */
     private static boolean assignValue(Tile tile, int value) {
-        tile.value = value;
+        tile.currentValue = value;
         tile.grid.emptyTiles.remove(tile);
 
         // FORWARD CHECKING
@@ -222,15 +231,15 @@ public class Solver {
     }
 
     /**
-     * Remove the assigned value to the given tile, and, if forward checking is enabled, update the
-     * sisters' possibilities.
+     * Remove the assigned value to the given tile, and, if forward checking is
+     * enabled, update the sisters' possibilities.
      * 
      * @param tile
      *            The tile to be cleared
      */
     private static void unassignValue(Tile tile) {
-        int value = tile.value;
-        tile.value = 0;
+        int value = tile.currentValue;
+        tile.currentValue = 0;
         tile.grid.emptyTiles.add(tile);
 
         // FORWARD CHECKING
@@ -240,7 +249,6 @@ public class Solver {
         }
     }
 
-    
     public static void main(String[] args) {
         Solver solver = new Solver();
         if (args.length != 0) {

@@ -5,7 +5,7 @@ import java.util.HashSet;
 public class Tile {
 
     public Grid grid;
-    public Integer value;
+    public Integer currentValue;
     public HashSet<Integer> possibleValues; // used by forward checking
 
     private Integer row;
@@ -16,9 +16,9 @@ public class Tile {
         this.grid = grid;
         this.row = row;
         this.col = col;
-        this.value = value;
+        this.currentValue = value;
 
-        possibleValues = new HashSet<Integer>();
+        possibleValues = new HashSet<>();
         if (value == 0) {
             for (int i = 1; i <= 9; i++) {
                 possibleValues.add(i);
@@ -27,17 +27,19 @@ public class Tile {
     }
 
     /**
-     * Returns whether {@code value} is acceptable for this tile, in the current grid.
+     * Returns whether {@code value} is acceptable for this tile, in the current
+     * grid.
      * 
      * @param value
      *            The value to test.
-     * @return Whether {@code value} is acceptable for this tile, in the current grid.
+     * @return Whether {@code value} is acceptable for this tile, in the current
+     *         grid.
      */
     public boolean isConsistent(int value) {
         boolean res = true;
         // check the sisters
         for (Tile sister : getSisters()) {
-            res = res && (sister.value != value);
+            res = res && (sister.currentValue != value);
         }
         return res;
     }
@@ -47,12 +49,12 @@ public class Tile {
      * 
      * @param value
      *            The value to remove.
-     * @return {@code true} if success, {@code false} if one of the sisters has no more possible
-     *         values.
+     * @return {@code true} if success, {@code false} if one of the sisters has no
+     *         more possible values.
      */
     public boolean removeValueFromSisters(int value) {
         for (Tile sister : getSisters()) {
-            if (sister.value == 0) {
+            if (sister.currentValue == 0) {
                 sister.possibleValues.remove(value);
                 if (sister.possibleValues.isEmpty()) {
                     return false;
@@ -63,29 +65,30 @@ public class Tile {
     }
 
     /**
-     * Put back the value in the list of possibilities of the sisters (only if the value is
-     * consistent with the current grid).
+     * Put back the value in the list of possibilities of the sisters (only if the
+     * value is consistent with the current grid).
      * 
      * @param value
      *            The value to restore.
      */
     public void restoreValueInSisters(int value) {
         for (Tile sister : getSisters()) {
-            if (sister.value == 0 && sister.isConsistent(value)) {
+            if (sister.currentValue == 0 && sister.isConsistent(value)) {
                 sister.possibleValues.add(value);
             }
         }
     }
 
     /**
-     * Gives the tiles which are either in the same row or column or region as this tile.
+     * Gives the tiles which are either in the same row or column or region as this
+     * tile.
      * 
      * @return A set of the sisters of this tile.
      */
     public HashSet<Tile> getSisters() {
         if (sisters != null)
             return sisters;
-        sisters = new HashSet<Tile>();
+        sisters = new HashSet<>();
         // get the row
         for (int j = 0; j < 9; j++) {
             sisters.add(grid.tiles[row][j]);
@@ -112,13 +115,13 @@ public class Tile {
     /**
      * Gives the number of empty tiles which are sisters of this tile.
      * 
-     * @return The number of empty tiles which are either on the same row, column or region as this
-     *         tile.
+     * @return The number of empty tiles which are either on the same row, column or
+     *         region as this tile.
      */
     public int getNbOfEmptySisters() {
         int result = 0;
         for (Tile t : this.getSisters()) {
-            if (t.value == 0)
+            if (t.currentValue == 0)
                 result++;
         }
         return result;
@@ -126,6 +129,8 @@ public class Tile {
 
     /**
      * Returns a String representing this tile's coordinates.
+     * 
+     * @return a String of the form (row,column).
      */
     public String coords() {
         return "(" + row + "," + col + ")";
@@ -136,10 +141,10 @@ public class Tile {
      */
     @Override
     public String toString() {
-        if (value == 0) {
+        if (currentValue == 0) {
             return " ";
         } else {
-            return value.toString();
+            return currentValue.toString();
         }
     }
 }
