@@ -32,7 +32,7 @@ public class Solver {
         long startTime = System.nanoTime();
         Assignment solution = solve(grid);
         long executionTime = System.nanoTime() - startTime;
-        //System.out.println(solution);
+        System.out.println(solution);
         System.out.println(solution.nbVisitedNodes + " nodes have been visited");
         System.out.println("Execution time: " + executionTime / 1000000 + " ms");
     }

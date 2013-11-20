@@ -4,7 +4,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import com.jbion.utils.strings.BoxDrawing;
+import com.jbion.utils.strings.BoxChars;
+import com.jbion.utils.strings.GridDrawer;
 
 /**
  * Represents a grid of Sudoku.
@@ -162,43 +163,41 @@ public class Grid {
         return emptyTiles.isEmpty();
     }
 
-    private static final String LF = BoxDrawing.NEW_LINE + "";
-    private static final String H = BoxDrawing.BOX_DRAWINGS_LIGHT_HORIZONTAL + "";
-    private static final String V = BoxDrawing.BOX_DRAWINGS_LIGHT_VERTICAL + "";
-    private static final String H5 = H + H + H + H + H;
-    private static final char ULC = BoxDrawing.BOX_DRAWINGS_LIGHT_DOWN_AND_RIGHT;
-    private static final char DLC = BoxDrawing.BOX_DRAWINGS_LIGHT_UP_AND_RIGHT;
-    private static final char URC = BoxDrawing.BOX_DRAWINGS_LIGHT_DOWN_AND_LEFT;
-    private static final char DRC = BoxDrawing.BOX_DRAWINGS_LIGHT_UP_AND_LEFT;
-    private static final char DTEE = BoxDrawing.BOX_DRAWINGS_LIGHT_DOWN_AND_HORIZONTAL;
-    private static final char UTEE = BoxDrawing.BOX_DRAWINGS_LIGHT_UP_AND_HORIZONTAL;
-    private static final char RTEE = BoxDrawing.BOX_DRAWINGS_LIGHT_VERTICAL_AND_RIGHT;
-    private static final char LTEE = BoxDrawing.BOX_DRAWINGS_LIGHT_VERTICAL_AND_LEFT;
-    private static final char CROSS = BoxDrawing.BOX_DRAWINGS_LIGHT_VERTICAL_AND_HORIZONTAL;
+    private static final String LF = BoxChars.NEW_LINE;
+    private static final char H = BoxChars.BOX_DRAWINGS_LIGHT_HORIZONTAL;
+    private static final char V = BoxChars.BOX_DRAWINGS_LIGHT_VERTICAL;
+    private static final char ULC = BoxChars.BOX_DRAWINGS_LIGHT_DOWN_AND_RIGHT;
+    private static final char DLC = BoxChars.BOX_DRAWINGS_LIGHT_UP_AND_RIGHT;
+    private static final char URC = BoxChars.BOX_DRAWINGS_LIGHT_DOWN_AND_LEFT;
+    private static final char DRC = BoxChars.BOX_DRAWINGS_LIGHT_UP_AND_LEFT;
+    private static final char DTEE = BoxChars.BOX_DRAWINGS_LIGHT_DOWN_AND_HORIZONTAL;
+    private static final char UTEE = BoxChars.BOX_DRAWINGS_LIGHT_UP_AND_HORIZONTAL;
+    private static final char RTEE = BoxChars.BOX_DRAWINGS_LIGHT_VERTICAL_AND_RIGHT;
+    private static final char LTEE = BoxChars.BOX_DRAWINGS_LIGHT_VERTICAL_AND_LEFT;
+    private static final char CROSS = BoxChars.BOX_DRAWINGS_LIGHT_VERTICAL_AND_HORIZONTAL;
 
     /**
      * Prints the grid with fancy lines.
      */
     @Override
     public String toString() {
-
-        String res = ULC + H5 + DTEE + H5 + DTEE + H5 + URC + LF;
+        String res = ULC + GridDrawer.repeat(H, 3, 5, DTEE) + URC + LF;
         for (int i = 0; i < SIZE; i++) {
-            res = res.concat(V);
+            res += V;
             for (int j = 0; j < SIZE; j++) {
                 res = res.concat(tiles[i][j].toString());
                 if ((j + 1) % RSIZE == 0) {
-                    res = res.concat(V);
+                    res += V;
                 } else {
-                    res = res.concat(" ");
+                    res += " ";
                 }
             }
-            res = res.concat(LF);
+            res += LF;
             if (i % RSIZE == RSIZE - 1 && i != SIZE - 1) {
-                res = res.concat(RTEE + H5 + CROSS + H5 + CROSS + H5 + LTEE + LF);
+                res += RTEE + GridDrawer.repeat(H, 3, 5, CROSS) + LTEE + LF;
             }
         }
-        res = res.concat(DLC + H5 + UTEE + H5 + UTEE + H5 + DRC);
+        res += DLC + GridDrawer.repeat(H, 3, 5, UTEE) + DRC;
         return res;
     }
 
