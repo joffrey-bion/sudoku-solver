@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import com.jbion.utils.strings.BoxChars;
-import com.jbion.utils.strings.GridDrawer;
+import com.jbion.utils.grids.BoxChars;
+import com.jbion.utils.grids.GridDrawer;
 
 /**
  * Represents a grid of Sudoku.

@@ -2,7 +2,7 @@ package com.jbion.sudoku.test;
 
 import com.jbion.sudoku.solver.Solver;
 
-public class Test {
+public class SolverTest {
     
     public static void main(String[] args) {
         Solver solver = new Solver();
