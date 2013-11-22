@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import com.jbion.utils.grids.BoxChars;
-import com.jbion.utils.grids.GridDrawer;
+import com.jbion.utils.drawing.Drawing;
+import com.jbion.utils.drawing.grids.BoxChars;
 
 /**
  * Represents a grid of Sudoku.
@@ -163,7 +163,7 @@ public class Grid {
         return emptyTiles.isEmpty();
     }
 
-    private static final String LF = BoxChars.NEW_LINE;
+    private static final String LF = Drawing.NEW_LINE;
     private static final char H = BoxChars.BOX_DRAWINGS_LIGHT_HORIZONTAL;
     private static final char V = BoxChars.BOX_DRAWINGS_LIGHT_VERTICAL;
     private static final char ULC = BoxChars.BOX_DRAWINGS_LIGHT_DOWN_AND_RIGHT;
@@ -181,7 +181,7 @@ public class Grid {
      */
     @Override
     public String toString() {
-        String res = ULC + GridDrawer.repeat(H, 3, 5, DTEE) + URC + LF;
+        String res = ULC + Drawing.repeat(H, 3, 5, DTEE) + URC + LF;
         for (int i = 0; i < SIZE; i++) {
             res += V;
             for (int j = 0; j < SIZE; j++) {
@@ -194,10 +194,10 @@ public class Grid {
             }
             res += LF;
             if (i % RSIZE == RSIZE - 1 && i != SIZE - 1) {
-                res += RTEE + GridDrawer.repeat(H, 3, 5, CROSS) + LTEE + LF;
+                res += RTEE + Drawing.repeat(H, 3, 5, CROSS) + LTEE + LF;
             }
         }
-        res += DLC + GridDrawer.repeat(H, 3, 5, UTEE) + DRC;
+        res += DLC + Drawing.repeat(H, 3, 5, UTEE) + DRC;
         return res;
     }
 
