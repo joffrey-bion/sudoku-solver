@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import com.jbion.utils.drawing.Drawing;
-import com.jbion.utils.drawing.grids.BoxChars;
+import com.jbion.utils.console.drawing.Drawing;
+import com.jbion.utils.console.drawing.grids.BoxChars;
 
 /**
  * Represents a grid of Sudoku.
@@ -15,13 +15,13 @@ import com.jbion.utils.drawing.grids.BoxChars;
 public class Grid {
 
     /**
-     * Size of the grids.
-     */
-    static final int SIZE = 9;
-    /**
      * Size of the regions within each grid.
      */
-    static final int RSIZE = 3;
+	private static final int RSIZE = 3;
+    /**
+     * Size of the grids.
+     */
+	static final int SIZE = RSIZE * RSIZE;
 
     private Tile[][] tiles;
     private LinkedList<Tile> emptyTiles;

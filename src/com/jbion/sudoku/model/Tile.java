@@ -12,7 +12,7 @@ public class Tile {
     /**
      * The {@link Grid} containing this {@code Tile}.
      */
-    public Grid grid;
+	private Grid grid;
     /**
      * The possible values for this {@code Tile}. This set has to be manually
      * updated. This is to fully separate the solver's logic from the model's logic.
