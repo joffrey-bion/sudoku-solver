@@ -4,7 +4,7 @@ import java.util.HashSet;
 
 /**
  * Represents one tile in a Sudoku {@link Grid}.
- * 
+ *
  * @author <a href="mailto:joffrey.bion@gmail.com">Joffrey Bion</a>
  */
 public class Tile {
@@ -12,10 +12,11 @@ public class Tile {
     /**
      * The {@link Grid} containing this {@code Tile}.
      */
-	private Grid grid;
+    private Grid grid;
+
     /**
-     * The possible values for this {@code Tile}. This set has to be manually
-     * updated. This is to fully separate the solver's logic from the model's logic.
+     * The possible values for this {@code Tile}. This set has to be manually updated. This is to
+     * fully separate the solver's logic from the model's logic.
      */
     public HashSet<Integer> possibleValues; // used by forward checking
 
@@ -23,13 +24,16 @@ public class Tile {
      * The current value of this {@code Tile}. 0 represents an empty {@code Tile}.
      */
     private int currentValue;
+
     private int row;
+
     private int col;
+
     private HashSet<Tile> sisters;
 
     /**
      * Creates a new empty {@code Tile} at the specified position.
-     * 
+     *
      * @param grid
      *            The parent {@link Grid} for this {@code Tile}.
      * @param row
@@ -49,7 +53,7 @@ public class Tile {
 
     /**
      * Creates a new {@code Tile} at the specified position with the specified value.
-     * 
+     *
      * @param grid
      *            The parent {@link Grid} for this {@code Tile}.
      * @param row
@@ -66,17 +70,18 @@ public class Tile {
     }
 
     /**
-     * Sets the tiles which are either in the same row or column or region as this
-     * tile.
+     * Sets the tiles which are either in the same row or column or region as this tile.
+     *
+     * @param sisters
+     *            the sister cells of this tile
      */
     void setSisters(HashSet<Tile> sisters) {
         this.sisters = sisters;
     }
 
     /**
-     * Gives the tiles which are either in the same row or column or region as this
-     * tile.
-     * 
+     * Gives the tiles which are either in the same row or column or region as this tile.
+     *
      * @return A set of the sisters of this {@code Tile}.
      */
     public HashSet<Tile> getSisters() {
@@ -85,7 +90,7 @@ public class Tile {
 
     /**
      * Returns the current value of this {@code Tile}.
-     * 
+     *
      * @return the current value of this {@code Tile}.
      */
     public int getValue() {
@@ -97,7 +102,7 @@ public class Tile {
 
     /**
      * Sets the value of this {@code Tile}.
-     * 
+     *
      * @param value
      *            The value to give to this {@code Tile}.
      */
@@ -111,7 +116,7 @@ public class Tile {
 
     /**
      * Returns whether this {@code Tile} is empty.
-     * 
+     *
      * @return {@code true} if this {@code Tile} is empty, {@code false} otherwise.
      */
     public boolean isEmpty() {
@@ -127,13 +132,11 @@ public class Tile {
     }
 
     /**
-     * Returns whether {@code value} is acceptable for this tile, in the current
-     * grid.
-     * 
+     * Returns whether {@code value} is acceptable for this tile, in the current grid.
+     *
      * @param value
      *            The value to test.
-     * @return Whether {@code value} is acceptable for this tile, in the current
-     *         grid.
+     * @return Whether {@code value} is acceptable for this tile, in the current grid.
      */
     public boolean isConsistent(int value) {
         for (Tile sister : getSisters()) {
@@ -145,11 +148,10 @@ public class Tile {
     }
 
     /**
-     * Remove this {@code Tile}'s current value from the list of possibilities of its
-     * sisters.
-     * 
-     * @return {@code true} if success, {@code false} if one of the sisters has no
-     *         more possible values.
+     * Remove this {@code Tile}'s current value from the list of possibilities of its sisters.
+     *
+     * @return {@code true} if success, {@code false} if one of the sisters has no more possible
+     *         values.
      */
     public boolean removeValueFromSisters() {
         for (Tile sister : getSisters()) {
@@ -164,9 +166,9 @@ public class Tile {
     }
 
     /**
-     * Put back the value in the list of possibilities of the sisters (only if the
-     * value is consistent with the current grid).
-     * 
+     * Put back the value in the list of possibilities of the sisters (only if the value is
+     * consistent with the current grid).
+     *
      * @param value
      *            The value to restore.
      */
@@ -180,9 +182,9 @@ public class Tile {
 
     /**
      * Gives the number of empty tiles which are sisters of this tile.
-     * 
-     * @return The number of empty tiles which are either on the same row, column or
-     *         region as this tile.
+     *
+     * @return The number of empty tiles which are either on the same row, column or region as this
+     *         tile.
      */
     public int getNbOfEmptySisters() {
         int result = 0;
@@ -196,7 +198,7 @@ public class Tile {
 
     /**
      * Returns a String representing this tile's coordinates.
-     * 
+     *
      * @return a String of the form (row,column).
      */
     public String coords() {
