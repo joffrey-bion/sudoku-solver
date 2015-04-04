@@ -4,12 +4,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import com.jbion.utils.console.drawing.Drawing;
-import com.jbion.utils.console.drawing.grids.BoxChars;
+import org.hildan.utils.console.drawing.Drawing;
+import org.hildan.utils.console.drawing.grids.BoxChars;
 
 /**
  * Represents a grid of Sudoku.
- * 
+ *
  * @author <a href="mailto:joffrey.bion@gmail.com">Joffrey Bion</a>
  */
 public class Grid {
@@ -17,34 +17,33 @@ public class Grid {
     /**
      * Size of the regions within each grid.
      */
-	private static final int RSIZE = 3;
+    private static final int RSIZE = 3;
+
     /**
      * Size of the grids.
      */
-	static final int SIZE = RSIZE * RSIZE;
+    static final int SIZE = RSIZE * RSIZE;
 
     private Tile[][] tiles;
+
     private LinkedList<Tile> emptyTiles;
 
     /**
      * Creates a new {@code Grid} containing the specified numbers.
-     * 
+     *
      * @param numbers
-     *            The numbers to put in this {@code Grid}, listed row by row, from
-     *            the upper one to the lower one, in left-to-right order within a
-     *            row.
+     *            The numbers to put in this {@code Grid}, listed row by row, from the upper one to
+     *            the lower one, in left-to-right order within a row.
      * @throws IllegalArgumentException
-     *             If there is not enough numbers, or too many, or some other
-     *             characters than numbers.
+     *             If there is not enough numbers, or too many, or some other characters than
+     *             numbers.
      */
     public Grid(String[] numbers) {
         // Deal with obvious input errors
         if (numbers.length < SIZE * SIZE)
-            throw new IllegalArgumentException(
-                    "too few input digits (blanks must be given by zeros)");
+            throw new IllegalArgumentException("too few input digits (blanks must be given by zeros)");
         if (numbers.length > SIZE * SIZE)
-            throw new IllegalArgumentException("too many input digits, only " + SIZE * SIZE
-                    + " are needed");
+            throw new IllegalArgumentException("too many input digits, only " + SIZE * SIZE + " are needed");
 
         // Start initialization
         emptyTiles = new LinkedList<>();
@@ -65,8 +64,7 @@ public class Grid {
                 } else if (0 < value && value <= SIZE) {
                     tiles[i][j] = new Tile(this, i, j, value);
                 } else {
-                    throw new IllegalArgumentException("wrong input, only digits from 0 to " + SIZE
-                            + " are accepted");
+                    throw new IllegalArgumentException("wrong input, only digits from 0 to " + SIZE + " are accepted");
                 }
             }
         }
@@ -78,9 +76,14 @@ public class Grid {
     }
 
     /**
-     * Gives the tiles which are either in the same row or column or region as the
-     * specified coordinates.
+     * Gives the tiles which are either in the same row or column or region as the specified
+     * coordinates.
      * 
+     * @param row
+     *            the row number of the cell
+     * @param col
+     *            the column number of the cell
+     *
      * @return A set of the sisters of this tile.
      */
     HashSet<Tile> getSisters(int row, int col) {
@@ -117,9 +120,9 @@ public class Grid {
     }
 
     /**
-     * Iterates on complete {@link Tile}s and remove the corresponding value in the
-     * empty sister {@code Tile}s.
-     * 
+     * Iterates on complete {@link Tile}s and remove the corresponding value in the empty sister
+     * {@code Tile}s.
+     *
      * @return {@code false} if an empty {@link Tile} ends up with no possible value.
      */
     public boolean clearImpossibleValues() {
@@ -138,7 +141,7 @@ public class Grid {
 
     /**
      * Returns the matrix of the tiles of this {@code Grid}.
-     * 
+     *
      * @return the matrix of the tiles of this {@code Grid}.
      */
     Tile[][] getTiles() {
@@ -147,7 +150,7 @@ public class Grid {
 
     /**
      * Returns the list of the empty tiles of this {@code Grid}.
-     * 
+     *
      * @return the list of the empty tiles of this {@code Grid}.
      */
     public LinkedList<Tile> getEmptyTiles() {
@@ -156,7 +159,7 @@ public class Grid {
 
     /**
      * Returns whether this {@code Grid} is complete.
-     * 
+     *
      * @return {@code true} if all tiles have a value, {@code false} otherwise.
      */
     public boolean isFull() {
@@ -164,16 +167,27 @@ public class Grid {
     }
 
     private static final String LF = Drawing.NEW_LINE;
+
     private static final char H = BoxChars.BOX_DRAWINGS_LIGHT_HORIZONTAL;
+
     private static final char V = BoxChars.BOX_DRAWINGS_LIGHT_VERTICAL;
+
     private static final char ULC = BoxChars.BOX_DRAWINGS_LIGHT_DOWN_AND_RIGHT;
+
     private static final char DLC = BoxChars.BOX_DRAWINGS_LIGHT_UP_AND_RIGHT;
+
     private static final char URC = BoxChars.BOX_DRAWINGS_LIGHT_DOWN_AND_LEFT;
+
     private static final char DRC = BoxChars.BOX_DRAWINGS_LIGHT_UP_AND_LEFT;
+
     private static final char DTEE = BoxChars.BOX_DRAWINGS_LIGHT_DOWN_AND_HORIZONTAL;
+
     private static final char UTEE = BoxChars.BOX_DRAWINGS_LIGHT_UP_AND_HORIZONTAL;
+
     private static final char RTEE = BoxChars.BOX_DRAWINGS_LIGHT_VERTICAL_AND_RIGHT;
+
     private static final char LTEE = BoxChars.BOX_DRAWINGS_LIGHT_VERTICAL_AND_LEFT;
+
     private static final char CROSS = BoxChars.BOX_DRAWINGS_LIGHT_VERTICAL_AND_HORIZONTAL;
 
     /**
@@ -208,8 +222,7 @@ public class Grid {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 Tile tile = tiles[i][j];
-                System.out.print("(" + i + "," + j + ") value = " + tile.getValue()
-                        + " - possible: ");
+                System.out.print("(" + i + "," + j + ") value = " + tile.getValue() + " - possible: ");
                 for (int k : tile.possibleValues)
                     System.out.print(k + " ");
                 System.out.println();
