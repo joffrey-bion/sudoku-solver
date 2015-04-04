@@ -1,10 +1,10 @@
-package com.jbion.sudoku.solver;
+package org.hildan.sudoku.solver;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 
-import com.jbion.sudoku.model.Grid;
-import com.jbion.sudoku.model.Tile;
+import org.hildan.sudoku.model.Grid;
+import org.hildan.sudoku.model.Tile;
 
 public class Solver {
 

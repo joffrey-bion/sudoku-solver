@@ -1,6 +1,6 @@
-package com.jbion.sudoku.solver;
+package org.hildan.sudoku.solver;
 
-import com.jbion.sudoku.model.Grid;
+import org.hildan.sudoku.model.Grid;
 
 public class Assignment {
     

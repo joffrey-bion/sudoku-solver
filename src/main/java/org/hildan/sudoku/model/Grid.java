@@ -1,4 +1,4 @@
-package com.jbion.sudoku.model;
+package org.hildan.sudoku.model;
 
 import java.util.Arrays;
 import java.util.HashSet;

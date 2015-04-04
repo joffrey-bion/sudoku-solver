@@ -1,4 +1,4 @@
-package com.jbion.sudoku.test;
+package org.hildan.sudoku.test;
 
 public class TestGrids {
 

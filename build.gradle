@@ -1,0 +1,19 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+
+group = 'org.hildan.sudoku'
+version = '1.0'
+sourceCompatibility = '1.8'
+
+mainClassName = "org.hildan.sudoku.Sudoku"
+
+repositories {
+    maven {
+        url  "http://dl.bintray.com/joffrey-bion/maven" 
+    }
+}
+
+dependencies {
+    compile 'org.hildan.utils:console-drawing:1.0.0@jar'
+}

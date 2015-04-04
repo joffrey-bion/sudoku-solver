@@ -1,6 +1,6 @@
-package com.jbion.sudoku.test;
+package org.hildan.sudoku.test;
 
-import com.jbion.sudoku.solver.Solver;
+import org.hildan.sudoku.solver.Solver;
 
 public class SolverTest {
     
