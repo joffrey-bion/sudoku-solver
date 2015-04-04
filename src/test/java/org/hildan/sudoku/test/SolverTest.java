@@ -1,15 +1,13 @@
 package org.hildan.sudoku.test;
 
 import org.hildan.sudoku.solver.Solver;
+import org.junit.Test;
 
 public class SolverTest {
-    
-    public static void main(String[] args) {
+
+    @Test
+    public void test() {
         Solver solver = new Solver();
-        if (args.length != 0) {
-            solver.solveAndPrintStats(args);
-            return;
-        }
         System.out.println("== EASY GRID =======================");
         solver.solveAndPrintStats(TestGrids.easyGrid);
         System.out.println("\n== MEDIUM GRID =====================");
@@ -19,5 +17,5 @@ public class SolverTest {
         System.out.println("\n== EVIL GRID =======================");
         solver.solveAndPrintStats(TestGrids.evilGrid);
     }
-    
+
 }

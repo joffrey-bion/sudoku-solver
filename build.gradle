@@ -9,6 +9,7 @@ sourceCompatibility = '1.8'
 mainClassName = "org.hildan.sudoku.Sudoku"
 
 repositories {
+    mavenCentral()
     maven {
         url  "http://dl.bintray.com/joffrey-bion/maven" 
     }
@@ -16,4 +17,5 @@ repositories {
 
 dependencies {
     compile 'org.hildan.utils:console-drawing:1.0.0@jar'
+    testCompile 'junit:junit:4.+'
 }
