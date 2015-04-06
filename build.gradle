@@ -10,9 +10,7 @@ mainClassName = "org.hildan.sudoku.Sudoku"
 
 repositories {
     mavenCentral()
-    maven {
-        url  "http://dl.bintray.com/joffrey-bion/maven" 
-    }
+    maven { url  "http://dl.bintray.com/joffrey-bion/maven"  }
 }
 
 dependencies {
