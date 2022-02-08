@@ -1,15 +1,11 @@
-package org.hildan.sudoku;
+package org.hildan.sudoku
 
-import org.hildan.sudoku.solver.Solver;
+import org.hildan.sudoku.solver.Solver
 
-public class Sudoku {
-
-    public static void main(String[] args) {
-        Solver solver = new Solver();
-        if (args.length > 0) {
-            solver.solveAndPrintStats(args);
-            return;
-        }
-        System.out.println("You must provide sudoku data.");
+fun main(args: Array<String>) {
+    if (args.isEmpty()) {
+        println("You must provide sudoku data.")
+        return
     }
+    Solver().solveAndPrintStats(args)
 }

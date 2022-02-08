@@ -1,26 +1,13 @@
-package org.hildan.sudoku.solver;
+package org.hildan.sudoku.solver
 
-import org.hildan.sudoku.model.Grid;
+import org.hildan.sudoku.model.Grid
 
-public class Assignment {
-    
-    public Grid grid;
-    public int nbVisitedNodes;
-    
-    public Assignment(Grid grid) {
-        super();
-        this.grid = grid;
-        this.nbVisitedNodes = 0;
-    }
-    
-    public boolean isSolution() {
-        return grid != null && grid.getEmptyTiles().isEmpty();
-    }
+class Assignment(
+    val grid: Grid,
+) {
+    var nbVisitedNodes = 0
+    val isSolution: Boolean
+        get() = grid.isFull
 
-    @Override
-    public String toString() {
-        if (isSolution())
-            return grid.toString();
-        return "No solution found.";
-    }
+    override fun toString(): String = if (isSolution) grid.toString() else "No solution found."
 }

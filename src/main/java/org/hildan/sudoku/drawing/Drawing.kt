@@ -20,7 +20,6 @@ object Drawing {
      *
      * @return A String of `nbSections` sections of `sectionSize` `cBase`, separated with `cSep`.
      */
-    @JvmStatic
     fun repeat(
         cBase: CharSequence,
         nbSections: Int,

@@ -1,240 +1,208 @@
-package org.hildan.sudoku.solver;
+package org.hildan.sudoku.solver
 
-import java.util.Arrays;
-import java.util.LinkedList;
+import org.hildan.sudoku.model.Grid
+import org.hildan.sudoku.model.Tile
 
-import org.hildan.sudoku.model.Grid;
-import org.hildan.sudoku.model.Tile;
+private const val USE_FORWARD_CHECK = true
 
-public class Solver {
+/** Heuristic of Most Constrained/Constraining Variables */
+private const val USE_MCV_HEURISTICS = true
 
-    public static boolean FC = true; // use Forward-Checking
-    public static boolean H = true; // use heuristics MCV1 and MCV2
-    public static boolean H3 = true; // use heuristic LCV
+/** Heuristic of Least Constraining Value */
+private const val USE_LCV_HEURISTIC = true
 
+class Solver {
     /**
-     * Prepares the grid, solve the grid and print the execution time and number of
-     * visited nodes.
-     * 
-     * @param input
-     *            The list of all values in the initial grid, rows after rows, with 0
-     *            for the empty tiles.
+     * Prepares the grid, solve the grid and print the execution time and number of visited nodes.
+     *
+     * @param input The list of all values in the initial grid, rows after rows, with 0 for the empty tiles.
      */
-    public void solveAndPrintStats(String[] input) {
-        Grid grid;
-        try {
-            grid = new Grid(input);
-        } catch (Exception e) {
-            System.err.println("INPUT ERROR: " + e.getMessage());
-            return;
+    fun solveAndPrintStats(input: Array<String>) {
+        val grid: Grid = try {
+            Grid(input)
+        } catch (e: Exception) {
+            System.err.println("INPUT ERROR: " + e.message)
+            return
         }
         //System.out.println(grid);
-        long startTime = System.nanoTime();
-        Assignment solution = solve(grid);
-        long executionTime = System.nanoTime() - startTime;
-        System.out.println(solution);
-        System.out.println(solution.nbVisitedNodes + " nodes have been visited");
-        System.out.println("Execution time: " + executionTime / 1000000 + " ms");
+        val startTime = System.nanoTime()
+        val solution = solve(grid)
+        val executionTime = System.nanoTime() - startTime
+        println(solution)
+        println("${solution.nbVisitedNodes} nodes have been visited")
+        println("Execution time: " + executionTime / 1000000 + " ms")
     }
 
     /**
-     * Solve the given grid and returns the solution.
-     * 
-     * @param grid
-     *            The grid to solve.
-     * @return The Assignment object corresponding to the solution, or to the failure
-     *         if no solution were found.
+     * Solve the given [grid] and returns the solved or failed [Assignment].
      */
-    public Assignment solve(Grid grid) {
+    fun solve(grid: Grid): Assignment {
         // Forward-Checking preparation
-        if (FC) {
+        if (USE_FORWARD_CHECK) {
             // find the clue-tiles and remove the possible values in the impacted
             // empty tiles before starting the search.
             if (!grid.clearImpossibleValues()) {
-                throw new RuntimeException("Incorrect clues in the given grid.");
+                error("Incorrect clues in the given grid.")
             }
         }
         // Start recursive backtracking search
-        Assignment assignment = new Assignment(grid);
-        backtracking(assignment);
-        return assignment;
+        val assignment = Assignment(grid)
+        backtracking(assignment)
+        return assignment
     }
 
     /**
      * Recursive backtracking search. If the forward checking is enabled, the
      * possible values of the tiles must have been already updated due to the
      * constraints of the clues.
-     * 
+     *
      * @param assignment
-     *            The current assignment containing the current grid. It will be
-     *            modified.
+     * The current assignment containing the current grid. It will be
+     * modified.
      * @return Whether a solution has been found or not.
      */
-    private boolean backtracking(Assignment assignment) {
-        if (assignment.isSolution()) {
-            return true;
+    private fun backtracking(assignment: Assignment): Boolean {
+        if (assignment.isSolution) {
+            return true
         }
         // Choose an empty tile (unassigned variable)
-        Tile tile = selectUnassignedVariable(assignment.grid);
-        assignment.nbVisitedNodes++;
+        val tile = selectUnassignedVariable(assignment.grid)
+        assignment.nbVisitedNodes++
         // Try the possible values for this tile
-        for (int value : getOrderDomainValues(tile)) {
+        for (value in getOrderDomainValues(tile)) {
             // Check whether the value is consistent in the current grid.
-            if (!FC && !tile.isConsistent(value)) {
+            if (!USE_FORWARD_CHECK && !tile.isConsistent(value)) {
                 // This test is not necessary when forward-checking is enabled, since
                 // FC reduces the set of possible values during the search
-                continue;
+                continue
             }
 
             // Give a value to the tile (assign the variable)
-            boolean success = assignValue(tile, value);
+            val success = assignValue(tile, value)
             // If the forward-checking detected failure, don't try the value
             if (success) {
                 // Recursive search, with that value given to the tile
-                backtracking(assignment);
+                backtracking(assignment)
                 // Return the solution, if any were found
-                if (assignment.isSolution())
-                    return true;
+                if (assignment.isSolution) return true
             }
             // Clear the tile (remove the variable from assignment) to try other
             // values
-            unassignValue(tile);
+            unassignValue(tile)
         }
-        return false;
+        return false
+    }
+}
+
+/**
+ * Choose the next empty tile to fill.
+ */
+private fun selectUnassignedVariable(grid: Grid): Tile {
+    // Without heuristics, take the first one which comes
+    if (!USE_MCV_HEURISTICS) {
+        return grid.emptyTiles.first()
     }
 
-    /**
-     * Choose the next empty tile to fill.
-     * 
-     * @param grid
-     *            The current grid.
-     * @return The chosen tile.
-     */
-    private static Tile selectUnassignedVariable(Grid grid) {
-        // Without heuristics, take the first one which comes
-        if (!H) {
-            return grid.getEmptyTiles().getFirst();
+    // MOST CONSTRAINED VARIABLE heuristic
+    // We try here to choose a tile with the fewest possible values
+    var minLCV = 9
+    val listLCV = ArrayList<Tile>()
+    for (tile in grid.emptyTiles) {
+        val size = tile.possibleValues.size
+        if (size == minLCV) {
+            listLCV.add(tile)
+        } else if (size < minLCV) {
+            listLCV.removeAll(listLCV)
+            listLCV.add(tile)
+            minLCV = size
         }
-
-        // MOST CONSTRAINED VARIABLE heuristic
-        // We try here to choose a tile with the fewest possible values
-        int minLCV = 9;
-        LinkedList<Tile> listLCV = new LinkedList<>();
-        for (Tile tile : grid.getEmptyTiles()) {
-            int size = tile.possibleValues.size();
-            if (size == minLCV) {
-                listLCV.add(tile);
-            } else if (size < minLCV) {
-                listLCV.removeAll(listLCV);
-                listLCV.add(tile);
-                minLCV = size;
-            }
-        }
-
-        // MOST CONSTRAINING VARIABLE heuristic
-        // We try here to choose a tile with the most empty sisters
-        int maxMCV = 0;
-        LinkedList<Tile> listMCV = new LinkedList<>();
-        for (Tile tile : listLCV) {
-            // compute the number of empty sisters of 'tile'
-            int size = tile.getNbOfEmptySisters();
-            if (size == maxMCV) {
-                listMCV.add(tile);
-            } else if (size > maxMCV) {
-                listMCV.removeAll(listMCV);
-                listMCV.add(tile);
-                maxMCV = size;
-            }
-        }
-        return listMCV.getFirst();
     }
 
-    /**
-     * Gives an ordered list of values to test for the given tile.
-     * 
-     * @param tile
-     *            The tile we want to fill.
-     * @return An LinkedList of values to try for the given tile, in the right order.
-     */
-    private static LinkedList<Integer> getOrderDomainValues(Tile tile) {
-        if (!H3 || tile.possibleValues.size() <= 1) {
-            // the second part of the test saves some time
-            return new LinkedList<>(tile.possibleValues);
+    // MOST CONSTRAINING VARIABLE heuristic
+    // We try here to choose a tile with the most empty sisters
+    var maxMCV = 0
+    val listMCV = ArrayList<Tile>()
+    for (tile in listLCV) {
+        // compute the number of empty sisters of 'tile'
+        val size = tile.nbOfEmptySisters
+        if (size == maxMCV) {
+            listMCV.add(tile)
+        } else if (size > maxMCV) {
+            listMCV.removeAll(listMCV)
+            listMCV.add(tile)
+            maxMCV = size
         }
-        // Least Constraining Value
-        // For each possible value of the Tile, we count the number of possibilities
-        // which will be ruled out by the forward checking if we assign this value to
-        // this tile. That is the number of sisters having this value in their
-        // possibilities.
-        Integer[] nbImpacted = new Integer[9];
-        Arrays.fill(nbImpacted, 0);
-        for (int value : tile.possibleValues) {
-            for (Tile sister : tile.getSisters()) {
-                if (!sister.isEmpty())
-                    continue; // skip the filled sisters
-                if (sister.possibleValues.contains(value))
-                    nbImpacted[value - 1]++;
+    }
+    return listMCV.first()
+}
+
+/**
+ * Returns an ordered list of values to test for the given [tile].
+ */
+private fun getOrderDomainValues(tile: Tile): List<Int> {
+    if (!USE_LCV_HEURISTIC || tile.possibleValues.size <= 1) {
+        // the second part of the test saves some time
+        return ArrayList(tile.possibleValues)
+    }
+    // Least Constraining Value
+    // For each possible value of the Tile, we count the number of possibilities
+    // which will be ruled out by the forward checking if we assign this value to
+    // this tile. That is the number of sisters having this value in their
+    // possibilities.
+    val nbImpacted = Array(9) { 0 }
+    for (value in tile.possibleValues) {
+        for (sister in tile.sisters) {
+            if (!sister.isEmpty) continue  // skip the filled sisters
+            if (sister.possibleValues.contains(value)) {
+                nbImpacted[value - 1]++
             }
         }
-        // Now we have to sort the possible values, choosing first those which have
-        // the less impact on the sisters, according to the numbers we have just
-        // computed.
-        Integer[] sortedNbImpacted = nbImpacted.clone();
-        Arrays.sort(sortedNbImpacted);
-        LinkedList<Integer> sortedValues = new LinkedList<>();
-        for (int n : sortedNbImpacted) {
-            if (n > 0) {
-                // we have to find the value corresponding to that number of impacted
-                // sisters, it corresponds to the index (+1) of that number in the
-                // first array
-                for (int i = 0; i < nbImpacted.length; i++) {
-                    if (n == nbImpacted[i]) {
-                        sortedValues.add(i + 1);
-                        nbImpacted[i] = 0; // to avoid duplicates
-                    }
+    }
+    // Now we have to sort the possible values, choosing first those which have
+    // the less impact on the sisters, according to the numbers we have just
+    // computed.
+    val sortedNbImpacted = nbImpacted.sortedArray()
+    val sortedValues = ArrayList<Int>()
+    for (n in sortedNbImpacted) {
+        if (n > 0) {
+            // we have to find the value corresponding to that number of impacted
+            // sisters, it corresponds to the index (+1) of that number in the
+            // first array
+            for (i in nbImpacted.indices) {
+                if (n == nbImpacted[i]) {
+                    sortedValues.add(i + 1)
+                    nbImpacted[i] = 0 // to avoid duplicates
                 }
             }
         }
-        return sortedValues;
     }
+    return sortedValues
+}
 
-    /**
-     * Assign the given value to the given tile, and, if forward checking is enabled,
-     * update the sisters' possibilities.
-     * 
-     * @param tile
-     *            The tile to be filled
-     * @param value
-     *            The value to give to the tile
-     * @return {@code false} if the forward checking is enabled and one of the
-     *         sisters has no more possible values, {@code true} otherwise.
-     */
-    private static boolean assignValue(Tile tile, int value) {
-        tile.setValue(value);
+/**
+ * Assign the given [value] to the given [tile], and if forward checking is enabled, update the sisters' possibilities.
+ *
+ * @return `false` if the forward checking is enabled and one of the sisters has no more possible values,
+ * `true` otherwise.
+ */
+private fun assignValue(tile: Tile, value: Int): Boolean {
+    tile.value = value
 
-        // FORWARD CHECKING
-        // Propagate the constraints right now to foresee the problems
-        if (FC) {
-            return tile.removeValueFromSisters();
-        }
-        return true;
-    }
+    // FORWARD CHECKING
+    // Propagate the constraints right now to foresee the problems
+    return if (USE_FORWARD_CHECK) tile.removeValueFromSisters() else true
+}
 
-    /**
-     * Remove the assigned value to the given tile, and, if forward checking is
-     * enabled, update the sisters' possibilities.
-     * 
-     * @param tile
-     *            The tile to be cleared
-     */
-    private static void unassignValue(Tile tile) {
-        int value = tile.getValue();
-        tile.setEmpty();
+/**
+ * Remove the assigned value to the given [tile], and if forward checking is enabled, update the sisters' possibilities.
+ */
+private fun unassignValue(tile: Tile) {
+    val value = tile.value
+    tile.setEmpty()
 
-        // FORWARD CHECKING
-        // Restore the possibilities that had been removed
-        if (FC) {
-            tile.restoreValueInSisters(value);
-        }
+    // FORWARD CHECKING
+    // Restore the possibilities that had been removed
+    if (USE_FORWARD_CHECK) {
+        tile.restoreValueInSisters(value)
     }
 }

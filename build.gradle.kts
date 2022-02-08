@@ -6,7 +6,7 @@ plugins {
 group = "org.hildan.sudoku"
 
 application {
-    mainClass.set("org.hildan.sudoku.Sudoku")
+    mainClass.set("org.hildan.sudoku.SudokuKt")
 }
 
 repositories {

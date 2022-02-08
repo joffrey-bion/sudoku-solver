@@ -8,27 +8,16 @@ object BoxChars {
     val BOX_DRAWINGS_LIGHT_UP = Character.toChars(0x2575)[0]
     val BOX_DRAWINGS_LIGHT_RIGHT = Character.toChars(0x2576)[0]
     val BOX_DRAWINGS_LIGHT_DOWN = Character.toChars(0x2577)[0]
-    @JvmField
     val BOX_DRAWINGS_LIGHT_HORIZONTAL = Character.toChars(0x2500)[0]
-    @JvmField
     val BOX_DRAWINGS_LIGHT_VERTICAL = Character.toChars(0x2502)[0]
-    @JvmField
     val BOX_DRAWINGS_LIGHT_DOWN_AND_RIGHT = Character.toChars(0x250C)[0]
-    @JvmField
     val BOX_DRAWINGS_LIGHT_DOWN_AND_LEFT = Character.toChars(0x2510)[0]
-    @JvmField
     val BOX_DRAWINGS_LIGHT_DOWN_AND_HORIZONTAL = Character.toChars(0x252C)[0]
-    @JvmField
     val BOX_DRAWINGS_LIGHT_UP_AND_RIGHT = Character.toChars(0x2514)[0]
-    @JvmField
     val BOX_DRAWINGS_LIGHT_UP_AND_LEFT = Character.toChars(0x2518)[0]
-    @JvmField
     val BOX_DRAWINGS_LIGHT_UP_AND_HORIZONTAL = Character.toChars(0x2534)[0]
-    @JvmField
     val BOX_DRAWINGS_LIGHT_VERTICAL_AND_RIGHT = Character.toChars(0x251C)[0]
-    @JvmField
     val BOX_DRAWINGS_LIGHT_VERTICAL_AND_LEFT = Character.toChars(0x2524)[0]
-    @JvmField
     val BOX_DRAWINGS_LIGHT_VERTICAL_AND_HORIZONTAL = Character.toChars(0x253C)[0]
     val BOX_DRAWINGS_LIGHT_DIAGONAL_UPPER_RIGHT_TO_LOWER_LEFT = Character.toChars(0x2571)[0]
     val BOX_DRAWINGS_LIGHT_DIAGONAL_UPPER_LEFT_TO_LOWER_RIGHT = Character.toChars(0x2572)[0]

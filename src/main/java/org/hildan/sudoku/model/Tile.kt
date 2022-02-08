@@ -1,219 +1,118 @@
-package org.hildan.sudoku.model;
-
-import java.util.HashSet;
+package org.hildan.sudoku.model
 
 /**
- * Represents one tile in a Sudoku {@link Grid}.
- *
- * @author <a href="mailto:joffrey.bion@gmail.com">Joffrey Bion</a>
+ * Represents one tile in a Sudoku [Grid].
  */
-public class Tile {
-
+class Tile(
+    private val grid: Grid,
+    private val row: Int,
+    private val col: Int
+) {
     /**
-     * The {@link Grid} containing this {@code Tile}.
-     */
-    private Grid grid;
-
-    /**
-     * The possible values for this {@code Tile}. This set has to be manually updated. This is to
+     * The possible values for this `Tile`. This set has to be manually updated. This is to
      * fully separate the solver's logic from the model's logic.
      */
-    public HashSet<Integer> possibleValues; // used by forward checking
+    // used by forward checking
+    var possibleValues: MutableSet<Int> = (1..Grid.SIZE).toMutableSet()
 
     /**
-     * The current value of this {@code Tile}. 0 represents an empty {@code Tile}.
+     * The current value of this `Tile`. 0 represents an empty `Tile`.
      */
-    private int currentValue;
-
-    private int row;
-
-    private int col;
-
-    private HashSet<Tile> sisters;
+    private var currentValue = 0
 
     /**
-     * Creates a new empty {@code Tile} at the specified position.
-     *
-     * @param grid
-     *            The parent {@link Grid} for this {@code Tile}.
-     * @param row
-     *            The row of this {@code Tile} in the grid.
-     * @param col
-     *            The column of this {@code Tile} in the grid.
+     * Whether this `Tile` is empty.
      */
-    public Tile(Grid grid, int row, int col) {
-        this.grid = grid;
-        this.row = row;
-        this.col = col;
-        possibleValues = new HashSet<>();
-        for (int i = 1; i <= Grid.SIZE; i++) {
-            possibleValues.add(i);
+    val isEmpty: Boolean
+        get() = currentValue == 0
+
+    /**
+     * The current value of this `Tile`.
+     */
+    var value: Int
+        get() {
+            check(currentValue != 0) { "Cannot get the value from an empty tile." }
+            return currentValue
         }
-    }
-
-    /**
-     * Creates a new {@code Tile} at the specified position with the specified value.
-     *
-     * @param grid
-     *            The parent {@link Grid} for this {@code Tile}.
-     * @param row
-     *            The row of this {@code Tile} in the grid.
-     * @param col
-     *            The column of this {@code Tile} in the grid.
-     * @param value
-     *            The initial value for this {@code Tile}.
-     */
-    public Tile(Grid grid, int row, int col, int value) {
-        this(grid, row, col);
-        this.setValue(value);
-        possibleValues.clear();
-    }
-
-    /**
-     * Sets the tiles which are either in the same row or column or region as this tile.
-     *
-     * @param sisters
-     *            the sister cells of this tile
-     */
-    void setSisters(HashSet<Tile> sisters) {
-        this.sisters = sisters;
-    }
-
-    /**
-     * Gives the tiles which are either in the same row or column or region as this tile.
-     *
-     * @return A set of the sisters of this {@code Tile}.
-     */
-    public HashSet<Tile> getSisters() {
-        return sisters;
-    }
-
-    /**
-     * Returns the current value of this {@code Tile}.
-     *
-     * @return the current value of this {@code Tile}.
-     */
-    public int getValue() {
-        if (currentValue == 0) {
-            throw new RuntimeException("Cannot get the value from an empty tile.");
+        set(value) {
+            require(value in 1..Grid.SIZE) { "The value must be between 1 and ${Grid.SIZE}" }
+            currentValue = value
+            grid.emptyTiles.remove(this)
         }
-        return currentValue;
-    }
 
     /**
-     * Sets the value of this {@code Tile}.
-     *
-     * @param value
-     *            The value to give to this {@code Tile}.
+     * The tiles which are either in the same row or column or region as this tile.
      */
-    public void setValue(int value) {
-        if (value < 1 || value > Grid.SIZE) {
-            throw new IllegalArgumentException("The value must be between 1 and " + Grid.SIZE);
-        }
-        this.currentValue = value;
-        grid.getEmptyTiles().remove(this);
-    }
+    lateinit var sisters: Set<Tile>
 
     /**
-     * Returns whether this {@code Tile} is empty.
-     *
-     * @return {@code true} if this {@code Tile} is empty, {@code false} otherwise.
+     * The number of empty tiles which are sisters of this tile.
      */
-    public boolean isEmpty() {
-        return currentValue == 0;
+    val nbOfEmptySisters: Int
+        get() = sisters.count { it.isEmpty }
+
+    /**
+     * Creates a new `Tile` at the specified position with the specified value.
+     *
+     * @param grid The parent [Grid] for this `Tile`.
+     * @param row The row of this `Tile` in the grid.
+     * @param col The column of this `Tile` in the grid.
+     * @param value The initial value for this `Tile`.
+     */
+    constructor(grid: Grid, row: Int, col: Int, value: Int) : this(grid, row, col) {
+        this.value = value
+        possibleValues.clear()
     }
 
     /**
      * Sets this tile as empty.
      */
-    public void setEmpty() {
-        this.currentValue = 0;
-        grid.getEmptyTiles().add(this);
+    fun setEmpty() {
+        currentValue = 0
+        grid.emptyTiles.add(this)
     }
 
     /**
-     * Returns whether {@code value} is acceptable for this tile, in the current grid.
-     *
-     * @param value
-     *            The value to test.
-     * @return Whether {@code value} is acceptable for this tile, in the current grid.
+     * Returns whether [value] is acceptable for this tile, in the current grid.
      */
-    public boolean isConsistent(int value) {
-        for (Tile sister : getSisters()) {
-            if (sister.currentValue == value) {
-                return false;
-            }
-        }
-        return true;
-    }
+    fun isConsistent(value: Int): Boolean = sisters.none { it.currentValue == value }
 
     /**
-     * Remove this {@code Tile}'s current value from the list of possibilities of its sisters.
+     * Remove this `Tile`'s current value from the list of possibilities of its sisters.
      *
-     * @return {@code true} if success, {@code false} if one of the sisters has no more possible
-     *         values.
+     * @return `true` if success, `false` if one of the sisters has no more possible values.
      */
-    public boolean removeValueFromSisters() {
-        for (Tile sister : getSisters()) {
-            if (sister.isEmpty()) {
-                sister.possibleValues.remove(currentValue);
+    fun removeValueFromSisters(): Boolean {
+        for (sister in sisters) {
+            if (sister.isEmpty) {
+                sister.possibleValues.remove(currentValue)
                 if (sister.possibleValues.isEmpty()) {
-                    return false;
+                    return false
                 }
             }
         }
-        return true;
+        return true
     }
 
     /**
-     * Put back the value in the list of possibilities of the sisters (only if the value is
+     * Put back the [value] in the list of possibilities of the sisters (only if the value is
      * consistent with the current grid).
-     *
-     * @param value
-     *            The value to restore.
      */
-    public void restoreValueInSisters(int value) {
-        for (Tile sister : getSisters()) {
+    fun restoreValueInSisters(value: Int) {
+        for (sister in sisters) {
             if (sister.currentValue == 0 && sister.isConsistent(value)) {
-                sister.possibleValues.add(value);
+                sister.possibleValues.add(value)
             }
         }
-    }
-
-    /**
-     * Gives the number of empty tiles which are sisters of this tile.
-     *
-     * @return The number of empty tiles which are either on the same row, column or region as this
-     *         tile.
-     */
-    public int getNbOfEmptySisters() {
-        int result = 0;
-        for (Tile t : this.getSisters()) {
-            if (t.currentValue == 0) {
-                result++;
-            }
-        }
-        return result;
     }
 
     /**
      * Returns a String representing this tile's coordinates.
-     *
-     * @return a String of the form (row,column).
      */
-    public String coords() {
-        return "(" + row + "," + col + ")";
-    }
+    fun coords(): String = "($row,$col)"
 
     /**
      * Returns a space if this tile is empty, the digit of its value otherwise.
      */
-    @Override
-    public String toString() {
-        if (currentValue == 0) {
-            return " ";
-        } else {
-            return String.valueOf(currentValue);
-        }
-    }
+    override fun toString(): String = if (currentValue == 0) " " else currentValue.toString()
 }
