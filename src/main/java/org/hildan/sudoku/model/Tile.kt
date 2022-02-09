@@ -9,11 +9,14 @@ class Tile(
     val col: Int
 ) {
     /**
-     * The possible values for this `Tile`. This set has to be manually updated. This is to
-     * fully separate the solver's logic from the model's logic.
+     * The possible digits for this `Tile`. This set has to be manually updated.
+     * This is to fully separate the solver's logic from the model's logic.
      */
     // used by forward checking
-    var possibleValues: MutableSet<Int> = (1..Grid.SIZE).toMutableSet()
+    val possibleValues: Set<Int>
+        get() = _possibleValues
+
+    private val _possibleValues = (1..Grid.SIZE).toMutableSet()
 
     /**
      * The current value of this `Tile`. 0 represents an empty `Tile`.
@@ -67,7 +70,7 @@ class Tile(
      */
     constructor(grid: Grid, row: Int, col: Int, value: Int) : this(grid, row, col) {
         this.value = value
-        possibleValues.clear()
+        _possibleValues.clear()
     }
 
     /**
@@ -91,7 +94,7 @@ class Tile(
     fun removeValueFromSisters(): Boolean {
         for (sister in sisters) {
             if (sister.isEmpty) {
-                sister.possibleValues.remove(currentValue)
+                sister._possibleValues.remove(currentValue)
                 if (sister.possibleValues.isEmpty()) {
                     return false
                 }
@@ -106,8 +109,8 @@ class Tile(
      */
     fun restoreValueInSisters(value: Int) {
         for (sister in sisters) {
-            if (sister.currentValue == 0 && sister.isConsistent(value)) {
-                sister.possibleValues.add(value)
+            if (sister.isEmpty && sister.isConsistent(value)) {
+                sister._possibleValues.add(value)
             }
         }
     }
