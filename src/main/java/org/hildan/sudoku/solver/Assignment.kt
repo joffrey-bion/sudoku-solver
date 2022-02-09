@@ -1,5 +1,6 @@
 package org.hildan.sudoku.solver
 
+import org.hildan.sudoku.drawing.format
 import org.hildan.sudoku.model.Grid
 
 class Assignment(
@@ -9,5 +10,5 @@ class Assignment(
     val isSolution: Boolean
         get() = grid.isFull
 
-    override fun toString(): String = if (isSolution) grid.toString() else "No solution found."
+    override fun toString(): String = if (isSolution) grid.format() else "No solution found."
 }

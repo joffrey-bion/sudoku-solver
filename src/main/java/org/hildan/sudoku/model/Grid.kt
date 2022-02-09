@@ -1,8 +1,6 @@
 package org.hildan.sudoku.model
 
-import org.hildan.sudoku.drawing.BoxChars
-import org.hildan.sudoku.drawing.Drawing.repeat
-import java.lang.IllegalArgumentException
+import org.hildan.sudoku.drawing.format
 
 /**
  * Represents a grid of Sudoku.
@@ -70,13 +68,13 @@ class Grid(numbers: Array<String>) {
             sisters.add(tiles[i][col])
         }
         // add the region
-        val baserow = row / RSIZE * RSIZE
-        val basecol = col / RSIZE * RSIZE
-        for (i in 0 until RSIZE) {
+        val baserow = row / BOX_SIZE * BOX_SIZE
+        val basecol = col / BOX_SIZE * BOX_SIZE
+        for (i in 0 until BOX_SIZE) {
             if (baserow + i == row) {
                 continue  // skips the row, already added
             }
-            for (j in 0 until RSIZE) {
+            for (j in 0 until BOX_SIZE) {
                 if (basecol + j == col) {
                     continue  // skips the column, already added
                 }
@@ -108,63 +106,17 @@ class Grid(numbers: Array<String>) {
     /**
      * Prints the grid with fancy lines.
      */
-    override fun toString(): String {
-        var res = repeat(H, 3, 5, DTEE, ULC, URC) + LF
-        for (i in 0 until SIZE) {
-            res += V
-            for (j in 0 until SIZE) {
-                res = res + tiles[i][j].toString()
-                if ((j + 1) % RSIZE == 0) {
-                    res += V
-                } else {
-                    res += " "
-                }
-            }
-            res += LF
-            if (i % RSIZE == RSIZE - 1 && i != SIZE - 1) {
-                res += RTEE + repeat(H, 3, 5, CROSS) + LTEE + LF
-            }
-        }
-        res += DLC + repeat(H, 3, 5, UTEE) + DRC
-        return res
-    }
-
-    /**
-     * Prints the possible values for each tile of the grid.
-     */
-    fun printState() {
-        for (i in 0 until SIZE) {
-            for (j in 0 until SIZE) {
-                val tile = tiles[i][j]
-                print("(" + i + "," + j + ") value = " + tile!!.value + " - possible: ")
-                for (k in tile.possibleValues) print("$k ")
-                println()
-            }
-        }
-    }
+    override fun toString(): String = format()
 
     companion object {
         /**
          * Size of the regions within each grid.
          */
-        private const val RSIZE = 3
+        const val BOX_SIZE = 3
 
         /**
          * Size of the grids.
          */
-        const val SIZE = RSIZE * RSIZE
-
-        private const val LF = "\n"
-        private val H = BoxChars.BOX_DRAWINGS_LIGHT_HORIZONTAL.toString()
-        private val V = BoxChars.BOX_DRAWINGS_LIGHT_VERTICAL.toString()
-        private val ULC = BoxChars.BOX_DRAWINGS_LIGHT_DOWN_AND_RIGHT.toString()
-        private val DLC = BoxChars.BOX_DRAWINGS_LIGHT_UP_AND_RIGHT.toString()
-        private val URC = BoxChars.BOX_DRAWINGS_LIGHT_DOWN_AND_LEFT.toString()
-        private val DRC = BoxChars.BOX_DRAWINGS_LIGHT_UP_AND_LEFT.toString()
-        private val DTEE = BoxChars.BOX_DRAWINGS_LIGHT_DOWN_AND_HORIZONTAL.toString()
-        private val UTEE = BoxChars.BOX_DRAWINGS_LIGHT_UP_AND_HORIZONTAL.toString()
-        private val RTEE = BoxChars.BOX_DRAWINGS_LIGHT_VERTICAL_AND_RIGHT.toString()
-        private val LTEE = BoxChars.BOX_DRAWINGS_LIGHT_VERTICAL_AND_LEFT.toString()
-        private val CROSS = BoxChars.BOX_DRAWINGS_LIGHT_VERTICAL_AND_HORIZONTAL.toString()
+        const val SIZE = BOX_SIZE * BOX_SIZE
     }
 }

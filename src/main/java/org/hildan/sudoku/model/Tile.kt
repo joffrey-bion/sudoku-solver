@@ -5,8 +5,8 @@ package org.hildan.sudoku.model
  */
 class Tile(
     private val grid: Grid,
-    private val row: Int,
-    private val col: Int
+    val row: Int,
+    val col: Int
 ) {
     /**
      * The possible values for this `Tile`. This set has to be manually updated. This is to
@@ -25,6 +25,12 @@ class Tile(
      */
     val isEmpty: Boolean
         get() = currentValue == 0
+
+    /**
+     * Returns a space if this tile is empty, the digit of its value otherwise.
+     */
+    val valueOrSpace
+        get() = if (isEmpty) " " else currentValue.toString()
 
     /**
      * The current value of this `Tile`.
@@ -105,14 +111,4 @@ class Tile(
             }
         }
     }
-
-    /**
-     * Returns a String representing this tile's coordinates.
-     */
-    fun coords(): String = "($row,$col)"
-
-    /**
-     * Returns a space if this tile is empty, the digit of its value otherwise.
-     */
-    override fun toString(): String = if (currentValue == 0) " " else currentValue.toString()
 }
