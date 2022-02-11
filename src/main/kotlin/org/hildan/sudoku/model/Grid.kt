@@ -12,7 +12,7 @@ class Grid(numbers: String) {
     /**
      * The matrix of the tiles of this `Grid`.
      */
-    val tiles: Array<Array<Tile>>
+    private val tiles: Array<Array<Tile>>
 
     /**
      * The list of the empty tiles of this `Grid`.
@@ -45,6 +45,8 @@ class Grid(numbers: String) {
             }
         }
     }
+
+    operator fun get(row: Int, col: Int) = tiles[row][col]
 
     /**
      * Returns the tiles which are either in the same row or column or region as the specified coordinates.

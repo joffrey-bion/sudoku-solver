@@ -28,7 +28,7 @@ fun Grid.format() = buildString {
 private fun Grid.formatRow(row: Int) = buildString {
     append(VERTICAL_LINE)
     repeat(Grid.SIZE) { col ->
-        append(tiles[row][col].valueOrSpace)
+        append(get(row, col).valueOrSpace)
         if ((col + 1) % Grid.BOX_SIZE == 0) {
             append(VERTICAL_LINE)
         } else {
