@@ -8,7 +8,7 @@ import org.hildan.sudoku.drawing.format
  * @param numbers The numbers to put in this `Grid`, listed row by row, from the upper one to the lower one, in left-to-right order within a row.
  * @throws IllegalArgumentException If there is not enough numbers, or too many, or some other characters than numbers.
  */
-class Grid(numbers: Array<String>) {
+class Grid(numbers: String) {
     /**
      * The matrix of the tiles of this `Grid`.
      */
@@ -26,17 +26,15 @@ class Grid(numbers: Array<String>) {
         get() = emptyTiles.isEmpty()
 
     init {
-        require(numbers.size >= SIZE * SIZE) { "too few input digits (blanks must be given by zeros)" }
-        require(numbers.size <= SIZE * SIZE) { "too many input digits, only " + SIZE * SIZE + " are needed" }
+        require(numbers.length >= SIZE * SIZE) { "too few input digits (blanks must be given by zeros)" }
+        require(numbers.length <= SIZE * SIZE) { "too many input digits, only " + SIZE * SIZE + " are needed" }
 
         emptyTiles = ArrayList()
         tiles = Array(SIZE) { i ->
             Array(SIZE) { j ->
-                val value = numbers[SIZE * i + j].toIntOrNull()
-                    ?: throw IllegalArgumentException("wrong input, only digits are accepted")
-                when (value) {
-                    0 -> Tile(this, i, j).also { emptyTiles.add(it) }
-                    in 1..SIZE -> Tile(this, i, j, value)
+                when (val value = numbers[SIZE * i + j]) {
+                    in '1'..'9' -> Tile(this, i, j, value.digitToInt())
+                    '.', ' ', '0' -> Tile(this, i, j).also { emptyTiles.add(it) }
                     else -> throw IllegalArgumentException("wrong input, only digits from 0 to $SIZE are accepted")
                 }
             }

@@ -12,31 +12,11 @@ private const val USE_MCV_HEURISTICS = true
 private const val USE_LCV_HEURISTIC = true
 
 class Solver {
-    /**
-     * Prepares the grid, solve the grid and print the execution time and number of visited nodes.
-     *
-     * @param input The list of all values in the initial grid, rows after rows, with 0 for the empty tiles.
-     */
-    fun solveAndPrintStats(input: Array<String>) {
-        val grid: Grid = try {
-            Grid(input)
-        } catch (e: Exception) {
-            System.err.println("INPUT ERROR: " + e.message)
-            return
-        }
-        //System.out.println(grid);
-        val startTime = System.nanoTime()
-        val solution = solve(grid)
-        val executionTime = System.nanoTime() - startTime
-        println(solution)
-        println("${solution.nbVisitedNodes} nodes have been visited")
-        println("Execution time: " + executionTime / 1000000 + " ms")
-    }
 
     /**
-     * Solve the given [grid] and returns the solved or failed [Assignment].
+     * Solve the given [grid] and returns the number of visited nodes in the backtracking algorithm.
      */
-    fun solve(grid: Grid): Assignment {
+    fun solve(grid: Grid): Int {
         // Forward-Checking preparation
         if (USE_FORWARD_CHECK) {
             // find the clue-tiles and remove the possible values in the impacted
@@ -46,28 +26,20 @@ class Solver {
             }
         }
         // Start recursive backtracking search
-        val assignment = Assignment(grid)
-        backtracking(assignment)
-        return assignment
+        return backtracking(grid)
     }
 
     /**
-     * Recursive backtracking search. If the forward checking is enabled, the
-     * possible values of the tiles must have been already updated due to the
-     * constraints of the clues.
-     *
-     * @param assignment
-     * The current assignment containing the current grid. It will be
-     * modified.
-     * @return Whether a solution has been found or not.
+     * Recursive backtracking search. If the forward checking is enabled, the possible values of the tiles must have
+     * been already updated due to the constraints of the clues.
      */
-    private fun backtracking(assignment: Assignment): Boolean {
-        if (assignment.isSolution) {
-            return true
+    private fun backtracking(grid: Grid): Int {
+        if (grid.isComplete) {
+            return 0
         }
         // Choose an empty tile (unassigned variable)
-        val tile = selectUnassignedVariable(assignment.grid)
-        assignment.nbVisitedNodes++
+        val tile = selectUnassignedVariable(grid)
+        var nbVisitedNodes = 1
         // Try the possible values for this tile
         for (value in getOrderDomainValues(tile)) {
             // Check whether the value is consistent in the current grid.
@@ -82,15 +54,14 @@ class Solver {
             // If the forward-checking detected failure, don't try the value
             if (success) {
                 // Recursive search, with that value given to the tile
-                backtracking(assignment)
+                nbVisitedNodes += backtracking(grid)
                 // Return the solution, if any were found
-                if (assignment.isSolution) return true
+                if (grid.isComplete) return nbVisitedNodes
             }
-            // Clear the tile (remove the variable from assignment) to try other
-            // values
+            // Clear the tile (remove the variable from assignment) to try other values
             unassignValue(tile)
         }
-        return false
+        return nbVisitedNodes
     }
 }
 
