@@ -14,5 +14,10 @@ repositories {
 }
 
 dependencies {
-    testImplementation("junit:junit:4.13.2")
+    testImplementation(kotlin("test-junit5"))
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
