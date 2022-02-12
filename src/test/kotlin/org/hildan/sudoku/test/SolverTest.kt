@@ -18,7 +18,7 @@ import kotlin.test.assertEquals
 class SolverTest {
 
     @ParameterizedTest
-    @MethodSource("testPuzzles")
+    @MethodSource("standardPuzzles")
     fun testAllPuzzles(puzzlesFile: Path) {
         val solver = Solver()
         puzzlesFile.forEachLine { encodedGrid ->
@@ -31,6 +31,6 @@ class SolverTest {
     companion object {
 
         @JvmStatic
-        fun testPuzzles(): List<Path> = Path("dataset/puzzles").listDirectoryEntries("puzzles*.txt")
+        fun standardPuzzles(): List<Path> = Path("dataset/standard").listDirectoryEntries()
     }
 }
