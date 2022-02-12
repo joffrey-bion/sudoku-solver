@@ -11,58 +11,55 @@ private const val USE_MCV_HEURISTICS = true
 /** Heuristic of Least Constraining Value */
 private const val USE_LCV_HEURISTIC = true
 
-class Solver {
-
-    /**
-     * Solve the given [grid] and returns the number of visited nodes in the backtracking algorithm.
-     */
-    fun solve(grid: Grid): Int {
-        // Forward-Checking preparation
-        if (USE_FORWARD_CHECK) {
-            // find the clue-tiles and remove the possible values in the impacted
-            // empty tiles before starting the search.
-            if (!grid.clearImpossibleValues()) {
-                error("Incorrect clues in the given grid.")
-            }
+/**
+ * Solve this grid and returns the number of visited nodes in the backtracking algorithm.
+ */
+fun Grid.solveWithBacktracking(): Int {
+    // Forward-Checking preparation
+    if (USE_FORWARD_CHECK) {
+        // find the clue-tiles and remove the possible values in the impacted
+        // empty tiles before starting the search.
+        if (!clearImpossibleValues()) {
+            error("Incorrect clues in the given grid.")
         }
-        // Start recursive backtracking search
-        return backtracking(grid)
     }
+    // Start recursive backtracking search
+    return backtracking(this)
+}
 
-    /**
-     * Recursive backtracking search. If the forward checking is enabled, the possible values of the tiles must have
-     * been already updated due to the constraints of the clues.
-     */
-    private fun backtracking(grid: Grid): Int {
-        if (grid.isComplete) {
-            return 0
-        }
-        // Choose an empty tile (unassigned variable)
-        val tile = selectUnassignedVariable(grid)
-        var nbVisitedNodes = 1
-        // Try the possible values for this tile
-        for (value in getOrderDomainValues(tile)) {
-            // Check whether the value is consistent in the current grid.
-            if (!USE_FORWARD_CHECK && !tile.isConsistent(value)) {
-                // This test is not necessary when forward-checking is enabled, since
-                // FC reduces the set of possible values during the search
-                continue
-            }
-
-            // Give a value to the tile (assign the variable)
-            val success = assignValue(tile, value)
-            // If the forward-checking detected failure, don't try the value
-            if (success) {
-                // Recursive search, with that value given to the tile
-                nbVisitedNodes += backtracking(grid)
-                // Return the solution, if any were found
-                if (grid.isComplete) return nbVisitedNodes
-            }
-            // Clear the tile (remove the variable from assignment) to try other values
-            unassignValue(tile)
-        }
-        return nbVisitedNodes
+/**
+ * Recursive backtracking search. If the forward checking is enabled, the possible values of the tiles must have
+ * been already updated due to the constraints of the clues.
+ */
+private fun backtracking(grid: Grid): Int {
+    if (grid.isComplete) {
+        return 0
     }
+    // Choose an empty tile (unassigned variable)
+    val tile = selectUnassignedVariable(grid)
+    var nbVisitedNodes = 1
+    // Try the possible values for this tile
+    for (value in getOrderDomainValues(tile)) {
+        // Check whether the value is consistent in the current grid.
+        if (!USE_FORWARD_CHECK && !tile.isConsistent(value)) {
+            // This test is not necessary when forward-checking is enabled, since
+            // FC reduces the set of possible values during the search
+            continue
+        }
+
+        // Give a value to the tile (assign the variable)
+        val success = assignValue(tile, value)
+        // If the forward-checking detected failure, don't try the value
+        if (success) {
+            // Recursive search, with that value given to the tile
+            nbVisitedNodes += backtracking(grid)
+            // Return the solution, if any were found
+            if (grid.isComplete) return nbVisitedNodes
+        }
+        // Clear the tile (remove the variable from assignment) to try other values
+        unassignValue(tile)
+    }
+    return nbVisitedNodes
 }
 
 /**

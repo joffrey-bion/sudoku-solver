@@ -2,7 +2,7 @@ package org.hildan.sudoku
 
 import org.hildan.sudoku.drawing.format
 import org.hildan.sudoku.model.Grid
-import org.hildan.sudoku.solver.Solver
+import org.hildan.sudoku.solver.solveWithBacktracking
 
 fun main() {
     val input = readlnOrNull()
@@ -28,7 +28,7 @@ fun solveAndPrintStats(input: String) {
     }
     //System.out.println(grid);
     val startTime = System.nanoTime()
-    val nbVisitedNodes = Solver().solve(grid)
+    val nbVisitedNodes = grid.solveWithBacktracking()
     val executionTime = System.nanoTime() - startTime
     println(if (grid.isComplete) grid.format() else "No solution found.")
     println("$nbVisitedNodes nodes have been visited")
