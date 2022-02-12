@@ -2,7 +2,7 @@ package org.hildan.sudoku
 
 import org.hildan.sudoku.drawing.format
 import org.hildan.sudoku.model.Grid
-import org.hildan.sudoku.solver.solveWithBacktracking
+import org.hildan.sudoku.solver.backtracking.solveWithBacktracking
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
 

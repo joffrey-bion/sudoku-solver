@@ -3,7 +3,7 @@ package org.hildan.sudoku.test
 import org.hildan.sudoku.checker.CheckResult
 import org.hildan.sudoku.checker.check
 import org.hildan.sudoku.model.Grid
-import org.hildan.sudoku.solver.solveWithBacktracking
+import org.hildan.sudoku.solver.backtracking.solveWithBacktracking
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest
@@ -17,7 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.milliseconds
 
 @Execution(ExecutionMode.CONCURRENT)
-class SolverTest {
+class BacktrackingSolverTest {
 
     @ParameterizedTest
     @MethodSource("personalPuzzles")

@@ -1,4 +1,4 @@
-package org.hildan.sudoku.solver
+package org.hildan.sudoku.solver.backtracking
 
 import org.hildan.sudoku.model.Grid
 import org.hildan.sudoku.model.Tile
