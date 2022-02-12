@@ -14,6 +14,7 @@ import kotlin.io.path.forEachLine
 import kotlin.io.path.listDirectoryEntries
 import kotlin.test.assertEquals
 
+@Execution(ExecutionMode.CONCURRENT)
 class SolverTest {
 
     @ParameterizedTest
