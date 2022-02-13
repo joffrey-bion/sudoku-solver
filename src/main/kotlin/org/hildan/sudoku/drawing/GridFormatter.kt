@@ -18,7 +18,7 @@ fun Grid.format() = buildString {
     appendLine(formatTopLine())
     repeat(Grid.SIZE) { row ->
         append(formatRow(row))
-        if (row % Grid.BOX_SIZE == Grid.BOX_SIZE - 1 && row != Grid.SIZE - 1) {
+        if (row % Grid.BOX_SIDE_SIZE == Grid.BOX_SIDE_SIZE - 1 && row != Grid.SIZE - 1) {
             appendLine(formatMiddleLine())
         }
     }
@@ -28,8 +28,8 @@ fun Grid.format() = buildString {
 private fun Grid.formatRow(row: Int) = buildString {
     append(VERTICAL_LINE)
     repeat(Grid.SIZE) { col ->
-        append(get(row, col).valueOrSpace)
-        if ((col + 1) % Grid.BOX_SIZE == 0) {
+        append(get(row, col).value ?: " ")
+        if ((col + 1) % Grid.BOX_SIDE_SIZE == 0) {
             append(VERTICAL_LINE)
         } else {
             append(" ")

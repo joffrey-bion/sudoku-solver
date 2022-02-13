@@ -2,47 +2,48 @@ package org.hildan.sudoku.model
 
 import org.hildan.sudoku.drawing.format
 
+typealias Digit = Int
+
 /**
  * Represents a grid of Sudoku.
  *
- * @param numbers The numbers to put in this `Grid`, listed row by row, from the upper one to the lower one, in left-to-right order within a row.
- * @throws IllegalArgumentException If there is not enough numbers, or too many, or some other characters than numbers.
+ * @param digits The digits to put in this `Grid`, listed row by row, from top to bottom, from left to right within a row.
  */
-class Grid(numbers: String) {
+class Grid(digits: String) {
 
     init {
-        require(numbers.length == SIZE * SIZE) {
-            "there must be ${SIZE * SIZE} input digits, got ${numbers.length}"
-        }
+        require(digits.length == NB_CELLS) { "there must be $NB_CELLS input digits, got ${digits.length}" }
     }
 
     /**
-     * The list of the empty tiles of this `Grid`.
+     * The list of the empty cells of this `Grid`.
      */
-    val emptyTiles: MutableList<Tile> = ArrayList()
+    val emptyCells: MutableList<Cell> = ArrayList()
 
     /**
      * Whether this `Grid` is full of digits.
      */
     val isComplete: Boolean
-        get() = emptyTiles.isEmpty()
+        get() = emptyCells.isEmpty()
 
-    val tiles: List<Tile> = numbers.mapIndexed { index, c ->
-        when (c) {
-            in '1'..'9' -> Tile(this, index / SIZE, index % SIZE, c.digitToInt())
-            '.', ' ', '0' -> Tile(this, index / SIZE, index % SIZE).also { emptyTiles.add(it) }
-            else -> throw IllegalArgumentException("wrong input, only digits from 0 to $SIZE are accepted")
+    val cells: List<Cell> = digits.mapIndexed { index, c ->
+        Cell(row = index / SIZE, col = index % SIZE).also { cell ->
+            when (c) {
+                in '1'..'9' -> cell.value = c.digitToInt()
+                '.', ' ', '0' -> emptyCells.add(cell)
+                else -> throw IllegalArgumentException("wrong input at index $index, only digits 0-$SIZE, '.' or ' ' are accepted")
+            }
         }
     }
 
-    val rows: List<List<Tile>> = tiles.chunked(SIZE)
-    val cols: List<List<Tile>> = List(SIZE) { col -> rows.map { it[col] } }
-    val boxes: List<List<Tile>> = List(SIZE) { index ->
-        val rowOffset = (index / 3) * BOX_SIZE
-        val colOffset = (index % 3) * BOX_SIZE
+    val rows: List<List<Cell>> = cells.chunked(SIZE)
+    val cols: List<List<Cell>> = List(SIZE) { col -> rows.map { it[col] } }
+    val boxes: List<List<Cell>> = List(SIZE) { index ->
+        val rowOffset = (index / BOX_GRID_SIZE) * BOX_SIDE_SIZE
+        val colOffset = (index % BOX_GRID_SIZE) * BOX_SIDE_SIZE
         buildList {
-            for (r in 0 until BOX_SIZE) {
-                for (c in 0 until BOX_SIZE) {
+            for (r in 0 until BOX_SIDE_SIZE) {
+                for (c in 0 until BOX_SIDE_SIZE) {
                     add(get(rowOffset + r, colOffset + c))
                 }
             }
@@ -50,28 +51,28 @@ class Grid(numbers: String) {
     }
 
     init {
-        tiles.forEach {
+        cells.forEach {
             it.sisters = buildSet {
                 addAll(rows[it.row])
                 addAll(cols[it.col])
                 addAll(boxes[boxIndex(it.row, it.col)])
-            }
+            } - it
         }
     }
 
-    operator fun get(row: Int, col: Int) = tiles[row * SIZE + col]
+    operator fun get(row: Int, col: Int) = cells[row * SIZE + col]
 
     /**
-     * Iterates on complete [Tile]s and remove the corresponding value in the empty sister `Tile`s.
+     * Iterates on complete [Cell]s and remove the corresponding value in the empty sister `Cell`s.
      *
-     * @return `false` if an empty [Tile] ends up with no possible value.
+     * @return `false` if an empty [Cell] ends up with no possible value.
      */
     fun clearImpossibleValues(): Boolean {
-        for (tile in tiles) {
-            if (tile.isEmpty) {
-                continue  // do not consider empty tiles
+        for (cell in cells) {
+            if (cell.isEmpty) {
+                continue  // do not consider empty cells
             }
-            if (!tile.removeValueFromSisters()) {
+            if (!cell.removeValueFromSistersCandidates()) {
                 return false
             }
         }
@@ -85,15 +86,26 @@ class Grid(numbers: String) {
 
     companion object {
         /**
-         * Size of the regions within each grid.
+         * Size of the boxes within each grid.
          */
-        const val BOX_SIZE = 3
+        const val BOX_SIDE_SIZE = 3
+        /**
+         * Number of boxes horizontally (or vertically) in the grid of boxes.
+         */
+        const val BOX_GRID_SIZE = 3
 
         /**
-         * Size of the grids.
+         * The number of units of each type (row, column, box).
+         * Also The number of cells in a unit (row, column, box).
+         * Also the number of different digits in each unit of the grid.
          */
-        const val SIZE = BOX_SIZE * BOX_SIZE
+        const val SIZE = BOX_SIDE_SIZE * BOX_GRID_SIZE
+
+        /**
+         * The total number of cells in a grid.
+         */
+        const val NB_CELLS = SIZE * SIZE
     }
 }
 
-private fun boxIndex(row: Int, col: Int): Int = (row / Grid.BOX_SIZE) * 3 + col / Grid.BOX_SIZE
+private fun boxIndex(row: Int, col: Int): Int = (row / Grid.BOX_SIDE_SIZE) * 3 + col / Grid.BOX_SIDE_SIZE

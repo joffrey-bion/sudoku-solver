@@ -1,7 +1,7 @@
 package org.hildan.sudoku.checker
 
 import org.hildan.sudoku.model.Grid
-import org.hildan.sudoku.model.Tile
+import org.hildan.sudoku.model.Cell
 
 sealed class SUnit {
     data class Row(val index: Int): SUnit()
@@ -16,17 +16,17 @@ sealed class CheckResult {
 
 fun Grid.check(): CheckResult {
     repeat(Grid.SIZE) { n ->
-        if (rows[n].containsAllDigits()) {
+        if (rows[n].containsDistinctDigits()) {
             return CheckResult.Invalid(SUnit.Row(n))
         }
-        if (cols[n].containsAllDigits()) {
+        if (cols[n].containsDistinctDigits()) {
             return CheckResult.Invalid(SUnit.Col(n))
         }
-        if (boxes[n].containsAllDigits()) {
+        if (boxes[n].containsDistinctDigits()) {
             return CheckResult.Invalid(SUnit.Box(n))
         }
     }
     return CheckResult.Valid
 }
 
-private fun List<Tile>.containsAllDigits() = mapTo(HashSet()) { it.value }.size != Grid.SIZE
+private fun List<Cell>.containsDistinctDigits() = mapNotNullTo(HashSet()) { it.value }.size != count { !it.isEmpty }
