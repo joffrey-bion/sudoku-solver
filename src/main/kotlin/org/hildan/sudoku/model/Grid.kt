@@ -34,11 +34,11 @@ class Grid(digits: String) {
         }
     }
 
-    private val rows: List<GridUnit> = List(SIZE) { row ->
+    val rows: List<GridUnit> = List(SIZE) { row ->
         GridUnit(UnitId(UnitType.ROW, row), cells = List(SIZE) { col -> get(row, col) })
     }
 
-    private val cols: List<GridUnit> = List(SIZE) { col ->
+    val cols: List<GridUnit> = List(SIZE) { col ->
         GridUnit(UnitId(UnitType.COLUMN, col), cells = List(SIZE) { row -> get(row, col) })
     }
 

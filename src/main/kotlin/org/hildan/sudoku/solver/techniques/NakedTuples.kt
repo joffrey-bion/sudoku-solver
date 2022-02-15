@@ -45,12 +45,15 @@ open class NakedTuples(
                     // Exactly N cells with the same naked tuple of N candidates in the unit
                     // Those N candidates must all be in those N cells and can be removed from other cells in the unit
                     val cellIndices = cells.mapTo(HashSet()) { it.index }
-                    nakedTuples.add(NakedTuple(unit.id, tuple, cellIndices))
-                    actions.addAll(tupleCandidatesRemovalActions(
+                    val removalActions = tupleCandidatesRemovalActions(
                         unitCells = emptyCells,
                         cellsWithNakedTuple = cellIndices,
                         tupleCandidates = tuple,
-                    ))
+                    )
+                    if (removalActions.isNotEmpty()) {
+                        nakedTuples.add(NakedTuple(unit.id, tuple, cellIndices))
+                        actions.addAll(removalActions)
+                    }
                 }
             }
         }

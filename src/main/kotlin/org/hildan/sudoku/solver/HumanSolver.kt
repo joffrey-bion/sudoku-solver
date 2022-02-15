@@ -22,6 +22,10 @@ private val coreTechniques = listOf(
     HiddenPairs,
     HiddenTriples,
     HiddenQuads,
+    XWing,
+    Swordfish,
+    Jellyfish,
+    Squirmbag,
 )
 
 class HumanSolver(
