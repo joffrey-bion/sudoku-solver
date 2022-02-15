@@ -20,4 +20,5 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    systemProperty("junit.jupiter.execution.parallel.enabled", true)
 }
