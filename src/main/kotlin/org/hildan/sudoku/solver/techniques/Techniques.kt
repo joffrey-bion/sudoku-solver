@@ -10,7 +10,6 @@ interface Technique {
     /**
      * Attempts to apply this technique on the given [grid] and returns the effect, or null if the technique could
      * not be applied.
-     * TODO should implementations mutate the grid (harder to parallelize)? Or should the caller do it (might add work)?
      */
     fun attemptOn(grid: Grid): TechniqueUse?
 }
