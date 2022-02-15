@@ -1,5 +1,7 @@
 package org.hildan.sudoku.model
 
+import org.hildan.sudoku.solver.techniques.CellIndex
+
 /**
  * Represents one cell in a Sudoku [Grid].
  */
@@ -15,11 +17,19 @@ class Cell(
         get() = value == null
 
     /** The possible digits for this cell. */
-    val candidates: MutableSet<Digit> = (1..Grid.SIZE).toMutableSet()
+    val candidates: MutableSet<Digit> = ALL_DIGITS.toMutableSet()
 
     /** The cells which are either in the same unit (row or column or box) as this cell. */
     lateinit var sisters: Set<Cell>
+
+    override fun toString(): String = "r${row + 1}c${col + 1} (${'A' + row}${col + 1})"
 }
+
+val Cell.index: CellIndex
+    get() = Grid.SIZE * row + col
+
+val Cell.box: Int
+    get() = (row / Grid.BOX_SIDE_SIZE) * 3 + col / Grid.BOX_SIDE_SIZE
 
 /** The number of empty cells which are sisters of this cell. */
 val Cell.nbEmptySisters: Int

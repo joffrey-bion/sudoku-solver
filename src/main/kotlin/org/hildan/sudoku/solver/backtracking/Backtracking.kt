@@ -19,9 +19,7 @@ fun Grid.solveWithBacktracking(): Int {
         // find the clue-cells and remove the possible values in the impacted
         // empty cells before starting the search.
         val stillValid = clearImpossibleValues()
-        if (!stillValid) {
-            error("Incorrect clues in the given grid.")
-        }
+        require(stillValid) { "Incorrect clues in the given grid." }
     }
     return backtracking(this)
 }
@@ -80,7 +78,7 @@ private fun Grid.selectEmptyCell(): Cell {
     return cellsWithFewestCandidates.maxByOrNull { it.nbEmptySisters } ?: error("No empty cells")
 }
 
-private fun List<Cell>.filterFewestCandidates(): List<Cell> = buildList {
+private fun Iterable<Cell>.filterFewestCandidates(): List<Cell> = buildList {
     var minLCV = 9
     for (cell in this@filterFewestCandidates) {
         val size = cell.candidates.size

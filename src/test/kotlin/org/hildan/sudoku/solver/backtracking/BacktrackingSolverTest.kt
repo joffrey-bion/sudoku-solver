@@ -1,9 +1,8 @@
-package org.hildan.sudoku.test
+package org.hildan.sudoku.solver.backtracking
 
 import org.hildan.sudoku.checker.CheckResult
 import org.hildan.sudoku.checker.check
 import org.hildan.sudoku.model.Grid
-import org.hildan.sudoku.solver.backtracking.solveWithBacktracking
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
 import org.junit.jupiter.params.ParameterizedTest

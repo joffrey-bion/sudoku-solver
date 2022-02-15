@@ -2,8 +2,6 @@ package org.hildan.sudoku.model
 
 import org.hildan.sudoku.drawing.format
 
-typealias Digit = Int
-
 /**
  * Represents a grid of Sudoku.
  *
@@ -18,7 +16,7 @@ class Grid(digits: String) {
     /**
      * The list of the empty cells of this `Grid`.
      */
-    val emptyCells: MutableList<Cell> = ArrayList()
+    val emptyCells: MutableCollection<Cell> = HashSet()
 
     /**
      * Whether this `Grid` is full of digits.
@@ -36,27 +34,38 @@ class Grid(digits: String) {
         }
     }
 
-    val rows: List<List<Cell>> = cells.chunked(SIZE)
-    val cols: List<List<Cell>> = List(SIZE) { col -> rows.map { it[col] } }
-    val boxes: List<List<Cell>> = List(SIZE) { index ->
-        val rowOffset = (index / BOX_GRID_SIZE) * BOX_SIDE_SIZE
-        val colOffset = (index % BOX_GRID_SIZE) * BOX_SIDE_SIZE
-        buildList {
-            for (r in 0 until BOX_SIDE_SIZE) {
-                for (c in 0 until BOX_SIDE_SIZE) {
-                    add(get(rowOffset + r, colOffset + c))
-                }
-            }
-        }
+    private val rows: List<GridUnit> = List(SIZE) { row ->
+        GridUnit(UnitId(UnitType.ROW, row), cells = List(SIZE) { col -> get(row, col) })
     }
 
+    private val cols: List<GridUnit> = List(SIZE) { col ->
+        GridUnit(UnitId(UnitType.COLUMN, col), cells = List(SIZE) { row -> get(row, col) })
+    }
+
+    private val boxes: List<GridUnit> = List(SIZE) { index ->
+        val rowOffset = (index / BOX_GRID_SIZE) * BOX_SIDE_SIZE
+        val colOffset = (index % BOX_GRID_SIZE) * BOX_SIDE_SIZE
+        GridUnit(
+            id = UnitId(UnitType.BOX, index),
+            cells = buildList {
+                for (r in 0 until BOX_SIDE_SIZE) {
+                    for (c in 0 until BOX_SIDE_SIZE) {
+                        add(get(rowOffset + r, colOffset + c))
+                    }
+                }
+            },
+        )
+    }
+
+    val units = rows + cols + boxes
+
     init {
-        cells.forEach {
-            it.sisters = buildSet {
-                addAll(rows[it.row])
-                addAll(cols[it.col])
-                addAll(boxes[boxIndex(it.row, it.col)])
-            } - it
+        cells.forEach { cell ->
+            cell.sisters = buildSet {
+                addAll(rows[cell.row].cells)
+                addAll(cols[cell.col].cells)
+                addAll(boxes[cell.box].cells)
+            } - cell
         }
     }
 
@@ -107,5 +116,3 @@ class Grid(digits: String) {
         const val NB_CELLS = SIZE * SIZE
     }
 }
-
-private fun boxIndex(row: Int, col: Int): Int = (row / Grid.BOX_SIDE_SIZE) * 3 + col / Grid.BOX_SIDE_SIZE
