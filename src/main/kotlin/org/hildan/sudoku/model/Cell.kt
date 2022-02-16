@@ -35,6 +35,8 @@ val Cell.box: Int
 val Cell.nbEmptySisters: Int
     get() = sisters.count { it.isEmpty }
 
+fun Set<Cell>.mapToIndices() = mapTo(HashSet()) { it.index }
+
 /**
  * Returns whether the given [digit] appears in the same unit as this cell
  */

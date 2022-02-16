@@ -47,18 +47,17 @@ open class NakedTuples(
             val emptyCells = unit.cells.filter { it.isEmpty }
             val cellsByTuple = emptyCells.groupByPotentialNakedTuple()
 
-            cellsByTuple.forEach { (tuple, cells) ->
-                if (cells.size == tupleSize) {
+            cellsByTuple.forEach { (tuple, nakedCells) ->
+                if (nakedCells.size == tupleSize) {
                     // Exactly N cells with the same naked tuple of N candidates in the unit
                     // Those N candidates must all be in those N cells and can be removed from other cells in the unit
-                    val cellIndices = cells.mapTo(HashSet()) { it.index }
                     val removals = tupleCandidatesRemovalActions(
                         unitCells = emptyCells,
-                        cellsWithNakedTuple = cellIndices,
+                        cellsWithNakedTuple = nakedCells,
                         tupleCandidates = tuple,
                     )
                     if (removals.isNotEmpty()) {
-                        nakedTuples.add(NakedTuple(unit.id, tuple, cellIndices, removals))
+                        nakedTuples.add(NakedTuple(unit.id, tuple, nakedCells.mapToIndices(), removals))
                     }
                 }
             }
@@ -78,14 +77,13 @@ open class NakedTuples(
 
     private fun tupleCandidatesRemovalActions(
         unitCells: List<Cell>,
-        cellsWithNakedTuple: Set<CellIndex>,
+        cellsWithNakedTuple: Set<Cell>,
         tupleCandidates: Set<Digit>,
     ): List<Action.RemoveCandidate> = buildList {
         for (cell in unitCells) {
-            val cellIndex = cell.index
-            if (cellIndex !in cellsWithNakedTuple) {
+            if (cell !in cellsWithNakedTuple) {
                 val candidatesToRemove = cell.candidates intersect tupleCandidates
-                addAll(candidatesToRemove.map { Action.RemoveCandidate(it, cellIndex) })
+                addAll(candidatesToRemove.map { Action.RemoveCandidate(it, cell.index) })
             }
         }
     }

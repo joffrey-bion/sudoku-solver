@@ -18,24 +18,24 @@ object PointingTuples : Technique {
 
     private fun Grid.findPointingTuples(digit: Int): List<PointingTuple> = buildList {
         boxes.forEach { box ->
-            val cells = box.emptyCellsWithCandidate(digit)
-            val cellIndices = cells.mapTo(HashSet()) { it.index }
-
-            pointingTupleOrNull(box, digit, cells, cellIndices) { rows[it.row] }?.let { add(it) }
-            pointingTupleOrNull(box, digit, cells, cellIndices) { cols[it.col] }?.let { add(it) }
+            val candidateCells = box.emptyCellsWithCandidate(digit)
+            pointingTupleOrNull(box, digit, candidateCells) { rows[it.row] }?.let { add(it) }
+            pointingTupleOrNull(box, digit, candidateCells) { cols[it.col] }?.let { add(it) }
         }
     }
 
     private inline fun pointingTupleOrNull(
         box: GridUnit,
         digit: Int,
-        cells: Set<Cell>,
-        cellIndices: Set<CellIndex>,
+        candidateCells: Set<Cell>,
         getLine: (Cell) -> GridUnit,
     ): PointingTuple? {
-        val singleLine = cells.mapTo(HashSet()) { getLine(it) }.singleOrNull() ?: return null
+        val singleLine = candidateCells.mapTo(HashSet()) { getLine(it) }.singleOrNull() ?: return null
         val removals = candidateRemovals(box, singleLine, digit)
-        return if (removals.isEmpty()) null else PointingTuple(box.id, singleLine.id, digit, cellIndices, removals)
+        if (removals.isEmpty()) {
+            return null
+        }
+        return PointingTuple(box.id, singleLine.id, digit, candidateCells.mapToIndices(), removals)
     }
 
     private fun candidateRemovals(box: GridUnit, line: GridUnit, digit: Int): List<Action.RemoveCandidate> =

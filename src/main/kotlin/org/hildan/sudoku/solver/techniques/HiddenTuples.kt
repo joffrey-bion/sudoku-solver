@@ -55,10 +55,9 @@ open class HiddenTuples(
                 if (cells.size == tupleSize) {
                     // Exactly N cells with the same naked tuple of N candidates in the unit
                     // Those N candidates must all be in those N cells and can be removed from other cells in the unit
-                    val cellIndices = cells.mapTo(HashSet()) { it.index }
                     val removals = tupleCandidatesRemovalActions(cells, tuple)
                     if (removals.isNotEmpty()) {
-                        hiddenTuples.add(HiddenTuple(unit.id, tuple, cellIndices, removals))
+                        hiddenTuples.add(HiddenTuple(unit.id, tuple, cells.mapToIndices(), removals))
                     }
                 }
             }
