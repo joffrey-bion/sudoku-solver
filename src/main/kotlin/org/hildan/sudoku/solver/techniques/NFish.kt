@@ -14,6 +14,10 @@ open class NFish(
     private val techniqueName: String,
     private val dimension: Int,
 ) : Technique {
+    /**
+     * Possible groups of [dimension] indices in a line.
+     */
+    private val cellIndicesSets = (0 until Grid.SIZE).toSet().allTuplesOfSize(dimension)
 
     override fun attemptOn(grid: Grid): NFishUse? {
         val fishes = mutableListOf<Fish>()
@@ -62,7 +66,6 @@ open class NFish(
     }
 
     private fun List<GridUnit>.groupUnitsByIndicesOfOccurrenceOf(digit: Digit): Map<Set<Int>, Set<GridUnit>> {
-        val cellIndicesSets = (0 until Grid.SIZE).toSet().allTuplesOfSize(dimension)
         return cellIndicesSets.associateWith { cellsTuple ->
             // we consider all units who have candidates for the given digit only in the current set of cells
             filterTo(HashSet()) { unit ->
