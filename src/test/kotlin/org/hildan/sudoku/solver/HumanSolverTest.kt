@@ -28,6 +28,22 @@ class HumanSolverTest {
     @Test
     fun wikiHiddenTriples() = test("300000000970010000600583000200000900500621003008000005000435002000090056000000001")
 
+    // requires Naked Pairs, X-Wing
+    @Test
+    fun xWing() = test("600090007040007100002800050800000090000070000030000008050002300004500020900030004")
+
+    // requires Pointing Pairs, Box/Line Reduction, Naked Quads, X-Wing
+    @Test
+    fun xWing2() = test("400090800000020050007500069000002000900040016035600700600000400010000000000000093")
+
+    // requires Pointing Pairs, Box/Line Reduction, Swordfish, X-Wing
+    @Test
+    fun swordfish() = test("500060003003804000000100020026000400300020006009000350040005000000601700100070009")
+
+    // requires Jellyfish, Naked Triple, Pointing Pairs
+    @Test
+    fun jellyfish() = test("020000030400000007001230400004150300005640100000000000002510600500000090080000005")
+
     private fun test(encodedGrid: String) {
         val grid = Grid(encodedGrid)
         val result = HumanSolver().solve(grid)
