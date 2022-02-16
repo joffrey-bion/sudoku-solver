@@ -32,8 +32,8 @@ class HumanSolverTest {
         val grid = Grid(encodedGrid)
         val result = HumanSolver().solve(grid)
         try {
-            assertEquals(CheckResult.Valid, grid.check())
-            assertTrue(grid.isComplete)
+            assertEquals(CheckResult.Valid, grid.check(), "Invalid grid")
+            assertTrue(grid.isComplete, "Couldn't solve the puzzle without backtracking")
         } finally {
             println(grid.format())
             println(result)
