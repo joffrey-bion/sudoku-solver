@@ -2,6 +2,11 @@ package org.hildan.sudoku.solver.techniques
 
 import org.hildan.sudoku.model.*
 
+/**
+ * When the candidates for a digit in a box are all confined to a single line in that box, we know the digit for the
+ * whole line must land in that box. Therefore, we can eliminate this digit from the candidates of other cells of the
+ * line that are not in that box.
+ */
 object PointingTuples : Technique {
 
     override fun attemptOn(grid: Grid): PointingTuplesUse? {

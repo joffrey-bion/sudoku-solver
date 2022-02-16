@@ -2,6 +2,9 @@ package org.hildan.sudoku.solver.techniques
 
 import org.hildan.sudoku.model.*
 
+/**
+ * Trivially sets the digit in a cell when this is the only cell of the unit with this candidate.
+ */
 object HiddenSingles : Technique {
 
     override fun attemptOn(grid: Grid): TechniqueUse? {
@@ -29,6 +32,13 @@ object HiddenTriples : HiddenTuples("Hidden Triples", tupleSize = 3)
 
 object HiddenQuads : HiddenTuples("Hidden Quads", tupleSize = 4)
 
+/**
+ * Hidden tuples are groups of N candidates that are only present in the same N cells of a unit.
+ * There can be other candidates in those N cells, but the no element of the tuple appears in any other cell of the
+ * unit.
+ * When this happens, only those N candidates can be in those N cells because they will fill them all, and thus other
+ * candidates can be removed from those cells.
+ */
 open class HiddenTuples(
     private val techniqueName: String,
     private val tupleSize: Int,

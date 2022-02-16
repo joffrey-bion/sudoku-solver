@@ -2,6 +2,9 @@ package org.hildan.sudoku.solver.techniques
 
 import org.hildan.sudoku.model.*
 
+/**
+ * Trivially sets the digit of a cell when only one candidate remains for that cell.
+ */
 object NakedSingles : Technique {
 
     override fun attemptOn(grid: Grid): NakedSinglesUse? {
@@ -27,6 +30,11 @@ object NakedTriples : NakedTuples("Naked Triples", tupleSize = 3)
 
 object NakedQuads : NakedTuples("Naked Quads", tupleSize = 4)
 
+/**
+ * Naked tuples are groups of N candidates that are the only ones present in N different cells of a unit.
+ * When this happens, those N candidates must all be in those N cells and thus cannot be in the rest of the unit, so
+ * they can be removed from the candidates of the other cells of the unit.
+ */
 open class NakedTuples(
     private val techniqueName: String,
     private val tupleSize: Int,
