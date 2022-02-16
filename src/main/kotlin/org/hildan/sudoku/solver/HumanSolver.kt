@@ -13,31 +13,24 @@ data class SolveResult(
     }
 }
 
-private val coreTechniques = listOf(
-    NakedSingles,
-    HiddenSingles,
-    NakedPairs,
-    NakedTriples,
-    NakedQuads,
-    HiddenPairs,
-    HiddenTriples,
-    HiddenQuads,
-    PointingTuples,
-    XWing,
-    Swordfish,
-    Jellyfish,
-    Squirmbag,
-)
-
 class HumanSolver(
-    private val orderedTechniques: List<Technique> = coreTechniques
+    private val orderedTechniques: List<Technique> = listOf(
+        NakedSingles,
+        HiddenSingles,
+        NakedPairs,
+        NakedTriples,
+        NakedQuads,
+        HiddenPairs,
+        HiddenTriples,
+        HiddenQuads,
+        PointingTuples,
+        BoxLineReduction,
+        XWing,
+        Swordfish,
+        Jellyfish,
+        Squirmbag,
+    )
 ) {
-
-    init {
-        require(orderedTechniques.contains(NakedSingles)) { "Cannot operate without NakedSingles technique" }
-        require(orderedTechniques.contains(HiddenSingles)) { "Cannot operate without HiddenSingles technique" }
-    }
-
     fun solve(grid: Grid): SolveResult {
         val stillValid = grid.clearImpossibleValues()
         require(stillValid) { "Incorrect clues in the given grid." }

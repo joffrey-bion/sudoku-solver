@@ -57,7 +57,9 @@ class Grid(digits: String) {
         )
     }
 
-    val units = rows + cols + boxes
+    val lines: List<GridUnit> = rows + cols
+
+    val units: List<GridUnit> = rows + cols + boxes
 
     init {
         cells.forEach { cell ->
