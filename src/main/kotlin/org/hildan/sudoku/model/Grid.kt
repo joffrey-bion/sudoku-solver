@@ -42,7 +42,7 @@ class Grid(digits: String) {
         GridUnit(UnitId(UnitType.COLUMN, col), cells = List(SIZE) { row -> get(row, col) })
     }
 
-    private val boxes: List<GridUnit> = List(SIZE) { index ->
+    val boxes: List<GridUnit> = List(SIZE) { index ->
         val rowOffset = (index / BOX_GRID_SIZE) * BOX_SIDE_SIZE
         val colOffset = (index % BOX_GRID_SIZE) * BOX_SIDE_SIZE
         GridUnit(

@@ -17,3 +17,7 @@ class GridUnit(
 ) {
     override fun toString(): String = id.toString()
 }
+
+fun GridUnit.emptyCellsWithCandidate(digit: Digit): Set<Cell> {
+    return cells.filterTo(HashSet()) { it.isEmpty && digit in it.candidates }
+}

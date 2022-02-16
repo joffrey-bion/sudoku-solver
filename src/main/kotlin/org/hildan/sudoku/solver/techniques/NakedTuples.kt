@@ -34,7 +34,6 @@ open class NakedTuples(
 
     override fun attemptOn(grid: Grid): NakedTuplesUse? {
         val nakedTuples = mutableListOf<NakedTuple>()
-        val actions = mutableListOf<Action>()
 
         grid.units.forEach { unit ->
             val emptyCells = unit.cells.filter { it.isEmpty }
@@ -45,23 +44,19 @@ open class NakedTuples(
                     // Exactly N cells with the same naked tuple of N candidates in the unit
                     // Those N candidates must all be in those N cells and can be removed from other cells in the unit
                     val cellIndices = cells.mapTo(HashSet()) { it.index }
-                    val removalActions = tupleCandidatesRemovalActions(
+                    val removals = tupleCandidatesRemovalActions(
                         unitCells = emptyCells,
                         cellsWithNakedTuple = cellIndices,
                         tupleCandidates = tuple,
                     )
-                    if (removalActions.isNotEmpty()) {
-                        nakedTuples.add(NakedTuple(unit.id, tuple, cellIndices))
-                        actions.addAll(removalActions)
+                    if (removals.isNotEmpty()) {
+                        nakedTuples.add(NakedTuple(unit.id, tuple, cellIndices, removals))
                     }
                 }
             }
         }
 
-        if (actions.isEmpty()) {
-            return null
-        }
-        return NakedTuplesUse(techniqueName, actions.distinct(), nakedTuples)
+        return if (nakedTuples.isEmpty()) null else NakedTuplesUse(techniqueName, nakedTuples)
     }
 
     private fun List<Cell>.groupByPotentialNakedTuple(): Map<Set<Int>, Set<Cell>> {
@@ -77,7 +72,7 @@ open class NakedTuples(
         unitCells: List<Cell>,
         cellsWithNakedTuple: Set<CellIndex>,
         tupleCandidates: Set<Digit>,
-    ): List<Action> = buildList {
+    ): List<Action.RemoveCandidate> = buildList {
         for (cell in unitCells) {
             val cellIndex = cell.index
             if (cellIndex !in cellsWithNakedTuple) {
@@ -90,12 +85,15 @@ open class NakedTuples(
 
 data class NakedTuplesUse(
     override val techniqueName: String,
-    override val actions: List<Action>,
     val nakedTuples: List<NakedTuple>,
-): TechniqueUse
+): TechniqueUse {
+    override val actions: List<Action>
+        get() = nakedTuples.flatMap { it.removals }.distinct()
+}
 
 data class NakedTuple(
     val unit: UnitId,
     val tuple: Set<Digit>,
     val cells: Set<CellIndex>,
+    val removals: List<Action.RemoveCandidate>,
 )

@@ -22,6 +22,7 @@ private val coreTechniques = listOf(
     HiddenPairs,
     HiddenTriples,
     HiddenQuads,
+    PointingTuples,
     XWing,
     Swordfish,
     Jellyfish,

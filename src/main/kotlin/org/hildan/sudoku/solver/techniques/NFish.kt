@@ -23,16 +23,13 @@ open class NFish(
             fishes.addAll(findFishes(digit, grid.cols, grid.rows))
         }
 
-        if (fishes.isEmpty()) {
-            return null
-        }
-        return NFishUse(techniqueName, fishes.flatMap { it.removals }.distinct(), fishes)
+        return if (fishes.isEmpty()) null else NFishUse(techniqueName, fishes)
     }
 
     private fun findFishes(
         digit: Int,
         definingUnits: List<GridUnit>,
-        secondaryUnits: List<GridUnit>
+        secondaryUnits: List<GridUnit>,
     ): List<Fish> {
         val fishes = mutableListOf<Fish>()
         val groups = definingUnits.groupUnitsByIndicesOfOccurrenceOf(digit = digit)
@@ -82,9 +79,11 @@ open class NFish(
 
 data class NFishUse(
     override val techniqueName: String,
-    override val actions: List<Action>,
-    val patterns: List<Fish>,
-): TechniqueUse
+    val fishes: List<Fish>,
+): TechniqueUse {
+    override val actions: List<Action>
+        get() = fishes.flatMap { it.removals }.distinct()
+}
 
 /** X-Wing, Swordfish, Jellyfish, Squirmbag */
 data class Fish(
