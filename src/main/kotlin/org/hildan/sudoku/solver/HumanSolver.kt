@@ -6,7 +6,7 @@ import org.hildan.sudoku.solver.techniques.*
 
 data class SolveResult(
     val solved: Boolean,
-    val steps: List<TechniqueUse>
+    val steps: List<Step>,
 ) {
     override fun toString(): String = steps.joinToString("\n") {
         "${it.techniqueName}:\n" + it.actions.joinToString("\n").prependIndent("  - ")
@@ -35,16 +35,20 @@ class HumanSolver(
         val stillValid = grid.clearImpossibleValues()
         require(stillValid) { "Incorrect clues in the given grid." }
 
-        val techniqueUses = mutableListOf<TechniqueUse>()
+        val steps = mutableListOf<Step>()
         while (!grid.isComplete) {
-            val result = findApplicableTechnique(grid) ?: return SolveResult(solved = false, techniqueUses)
-            techniqueUses.add(result)
-            result.actions.forEach { it.applyTo(grid) }
+            val result = findApplicableTechnique(grid) ?: return SolveResult(solved = false, steps)
+            steps.addAll(result)
+            result.flatMap { it.actions }.forEach {
+                it.applyTo(grid)
+            }
         }
-        return SolveResult(solved = true, techniqueUses)
+        return SolveResult(solved = true, steps)
     }
 
-    private fun findApplicableTechnique(grid: Grid) = orderedTechniques.firstNotNullOfOrNull { it.attemptOn(grid) }
+    private fun findApplicableTechnique(grid: Grid) = orderedTechniques.asSequence()
+        .map { it.attemptOn(grid) }
+        .firstOrNull { it.isNotEmpty() }
 }
 
 private fun Action.applyTo(grid: Grid) {

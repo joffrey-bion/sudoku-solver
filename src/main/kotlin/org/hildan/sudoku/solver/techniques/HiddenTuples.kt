@@ -7,7 +7,7 @@ import org.hildan.sudoku.model.*
  */
 object HiddenSingles : Technique {
 
-    override fun attemptOn(grid: Grid): TechniqueUse? {
+    override fun attemptOn(grid: Grid): List<HiddenSinglesStep> {
         val actions = grid.units.flatMap { unit ->
             ALL_DIGITS.mapNotNull { digit ->
                 unit.cells.singleOrNull { it.isEmpty && digit in it.candidates }?.let { onlyCellWithDigit ->
@@ -15,14 +15,13 @@ object HiddenSingles : Technique {
                 }
             }
         }
-
-        return if (actions.isEmpty()) null else HiddenSinglesUse(actions.distinct())
+        return if (actions.isEmpty()) emptyList() else listOf(HiddenSinglesStep(actions.distinct()))
     }
 }
 
-data class HiddenSinglesUse(
-    override val actions: List<Action>,
-): TechniqueUse {
+data class HiddenSinglesStep(
+    override val actions: List<Action.PlaceDigit>,
+): Step {
     override val techniqueName: String = "Hidden Singles"
 }
 
@@ -44,8 +43,8 @@ open class HiddenTuples(
     private val tupleSize: Int,
 ) : Technique {
 
-    override fun attemptOn(grid: Grid): HiddenTuplesUse? {
-        val hiddenTuples = mutableListOf<HiddenTuple>()
+    override fun attemptOn(grid: Grid): List<HiddenTupleStep> {
+        val hiddenTuples = mutableListOf<HiddenTupleStep>()
 
         grid.units.forEach { unit ->
             val emptyCells = unit.cells.filterTo(HashSet()) { it.isEmpty }
@@ -57,13 +56,13 @@ open class HiddenTuples(
                     // Those N candidates must all be in those N cells and can be removed from other cells in the unit
                     val removals = tupleCandidatesRemovalActions(cells, tuple)
                     if (removals.isNotEmpty()) {
-                        hiddenTuples.add(HiddenTuple(unit.id, tuple, cells.mapToIndices(), removals))
+                        hiddenTuples.add(HiddenTupleStep(techniqueName, unit.id, tuple, cells.mapToIndices(), removals))
                     }
                 }
             }
         }
 
-        return if (hiddenTuples.isEmpty()) null else HiddenTuplesUse(techniqueName, hiddenTuples)
+        return hiddenTuples
     }
 
     private fun Set<Cell>.groupByPotentialHiddenTuple(): Map<Set<Int>, Set<Cell>> {
@@ -90,17 +89,10 @@ open class HiddenTuples(
     }
 }
 
-data class HiddenTuplesUse(
+data class HiddenTupleStep(
     override val techniqueName: String,
-    val hiddenTuples: List<HiddenTuple>,
-): TechniqueUse {
-    override val actions: List<Action>
-        get() = hiddenTuples.flatMap { it.removals }.distinct()
-}
-
-data class HiddenTuple(
     val unit: UnitId,
     val tuple: Set<Digit>,
     val cells: Set<CellIndex>,
-    val removals: List<Action.RemoveCandidate>,
-)
+    override val actions: List<Action.RemoveCandidate>,
+): Step

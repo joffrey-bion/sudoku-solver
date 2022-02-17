@@ -7,20 +7,19 @@ import org.hildan.sudoku.model.*
  */
 object NakedSingles : Technique {
 
-    override fun attemptOn(grid: Grid): NakedSinglesUse? {
+    override fun attemptOn(grid: Grid): List<NakedSinglesStep> {
         val actions = grid.emptyCells.asSequence()
             .filter { it.candidates.size == 1 }
             .map { cell -> Action.PlaceDigit(cell.candidates.single(), cell.index) }
-            .distinct()
             .toList()
 
-        return if (actions.isEmpty()) null else NakedSinglesUse(actions)
+        return if (actions.isEmpty()) emptyList() else listOf(NakedSinglesStep(actions))
     }
 }
 
-data class NakedSinglesUse(
-    override val actions: List<Action>,
-): TechniqueUse {
+data class NakedSinglesStep(
+    override val actions: List<Action.PlaceDigit>,
+): Step {
     override val techniqueName: String = "Naked Singles"
 }
 
@@ -40,8 +39,8 @@ open class NakedTuples(
     private val tupleSize: Int,
 ) : Technique {
 
-    override fun attemptOn(grid: Grid): NakedTuplesUse? {
-        val nakedTuples = mutableListOf<NakedTuple>()
+    override fun attemptOn(grid: Grid): List<NakedTupleStep> {
+        val nakedTuples = mutableListOf<NakedTupleStep>()
 
         grid.units.forEach { unit ->
             val emptyCells = unit.cells.filter { it.isEmpty }
@@ -57,13 +56,12 @@ open class NakedTuples(
                         tupleCandidates = tuple,
                     )
                     if (removals.isNotEmpty()) {
-                        nakedTuples.add(NakedTuple(unit.id, tuple, nakedCells.mapToIndices(), removals))
+                        nakedTuples.add(NakedTupleStep(techniqueName, unit.id, tuple, nakedCells.mapToIndices(), removals))
                     }
                 }
             }
         }
-
-        return if (nakedTuples.isEmpty()) null else NakedTuplesUse(techniqueName, nakedTuples)
+        return nakedTuples
     }
 
     private fun List<Cell>.groupByPotentialNakedTuple(): Map<Set<Int>, Set<Cell>> {
@@ -89,17 +87,10 @@ open class NakedTuples(
     }
 }
 
-data class NakedTuplesUse(
+data class NakedTupleStep(
     override val techniqueName: String,
-    val nakedTuples: List<NakedTuple>,
-): TechniqueUse {
-    override val actions: List<Action>
-        get() = nakedTuples.flatMap { it.removals }.distinct()
-}
-
-data class NakedTuple(
     val unit: UnitId,
     val tuple: Set<Digit>,
     val cells: Set<CellIndex>,
-    val removals: List<Action.RemoveCandidate>,
-)
+    override val actions: List<Action.RemoveCandidate>,
+): Step

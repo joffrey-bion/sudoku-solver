@@ -9,14 +9,11 @@ import org.hildan.sudoku.model.*
  */
 object PointingTuples : Technique {
 
-    override fun attemptOn(grid: Grid): PointingTuplesUse? {
-        val pointingTuples = ALL_DIGITS.flatMap { digit ->
-            grid.findPointingTuples(digit)
-        }
-        return if (pointingTuples.isEmpty()) null else PointingTuplesUse(pointingTuples)
+    override fun attemptOn(grid: Grid): List<PointingTupleStep> = ALL_DIGITS.flatMap { digit ->
+        grid.findPointingTuples(digit)
     }
 
-    private fun Grid.findPointingTuples(digit: Int): List<PointingTuple> = buildList {
+    private fun Grid.findPointingTuples(digit: Int): List<PointingTupleStep> = buildList {
         boxes.forEach { box ->
             val candidateCells = box.emptyCellsWithCandidate(digit)
             pointingTupleOrNull(box, digit, candidateCells) { rows[it.row] }?.let { add(it) }
@@ -29,13 +26,13 @@ object PointingTuples : Technique {
         digit: Int,
         candidateCells: Set<Cell>,
         getLine: (Cell) -> GridUnit,
-    ): PointingTuple? {
+    ): PointingTupleStep? {
         val singleLine = candidateCells.mapTo(HashSet()) { getLine(it) }.singleOrNull() ?: return null
         val removals = candidateRemovals(box, singleLine, digit)
         if (removals.isEmpty()) {
             return null
         }
-        return PointingTuple(box.id, singleLine.id, digit, candidateCells.mapToIndices(), removals)
+        return PointingTupleStep(box.id, singleLine.id, digit, candidateCells.mapToIndices(), removals)
     }
 
     private fun candidateRemovals(box: GridUnit, line: GridUnit, digit: Int): List<Action.RemoveCandidate> =
@@ -44,22 +41,16 @@ object PointingTuples : Technique {
             .map { Action.RemoveCandidate(digit, it.index) }
 }
 
-data class PointingTuplesUse(
-    val pointingTuples: List<PointingTuple>,
-): TechniqueUse {
-    override val techniqueName: String = when {
-        pointingTuples.all { it.cells.size == 2 } -> "Pointing Pairs"
-        pointingTuples.all { it.cells.size == 3 } -> "Pointing Triples"
-        else -> "Pointing Pairs/Triples"
-    }
-    override val actions: List<Action>
-        get() = pointingTuples.flatMap { it.removals }.distinct()
-}
-
-data class PointingTuple(
+data class PointingTupleStep(
     val box: UnitId,
     val line: UnitId,
     val digit: Digit,
     val cells: Set<CellIndex>,
-    val removals: List<Action.RemoveCandidate>,
-)
+    override val actions: List<Action.RemoveCandidate>,
+): Step {
+    override val techniqueName: String = when {
+        cells.size == 2 -> "Pointing Pairs"
+        cells.size == 3 -> "Pointing Triples"
+        else -> error("Cannot have a pointing tuple with more than 3 cells")
+    }
+}

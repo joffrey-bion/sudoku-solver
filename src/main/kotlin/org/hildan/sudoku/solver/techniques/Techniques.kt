@@ -11,10 +11,10 @@ interface Technique {
      * Attempts to apply this technique on the given [grid] and returns the effect, or null if the technique could
      * not be applied.
      */
-    fun attemptOn(grid: Grid): TechniqueUse?
+    fun attemptOn(grid: Grid): List<Step>
 }
 
-sealed interface TechniqueUse {
+sealed interface Step {
     val techniqueName: String
     val actions: List<Action>
 }

@@ -19,23 +19,19 @@ open class NFish(
      */
     private val cellIndicesSets = (0 until Grid.SIZE).toSet().allTuplesOfSize(dimension)
 
-    override fun attemptOn(grid: Grid): NFishUse? {
-        val fishes = mutableListOf<Fish>()
-
+    override fun attemptOn(grid: Grid): List<FishStep> = buildList {
         ALL_DIGITS.forEach { digit ->
-            fishes.addAll(findFishes(digit, grid.rows, grid.cols))
-            fishes.addAll(findFishes(digit, grid.cols, grid.rows))
+            addAll(findFishes(digit, grid.rows, grid.cols))
+            addAll(findFishes(digit, grid.cols, grid.rows))
         }
-
-        return if (fishes.isEmpty()) null else NFishUse(techniqueName, fishes)
     }
 
     private fun findFishes(
         digit: Int,
         definingUnits: List<GridUnit>,
         secondaryUnits: List<GridUnit>,
-    ): List<Fish> {
-        val fishes = mutableListOf<Fish>()
+    ): List<FishStep> {
+        val fishes = mutableListOf<FishStep>()
         val groups = definingUnits.groupUnitsByIndicesOfOccurrenceOf(digit = digit)
         groups.forEach { (indices, definingSet) ->
             if (definingSet.size == dimension) {
@@ -45,7 +41,7 @@ open class NFish(
                     secondarySet = secondaryUnits.slice(indices),
                 )
                 if (removals.isNotEmpty()) {
-                    fishes.add(Fish(digit = digit, cells = indices, removals = removals))
+                    fishes.add(FishStep(techniqueName, digit = digit, cells = indices, actions = removals))
                 }
             }
         }
@@ -80,17 +76,10 @@ open class NFish(
     }
 }
 
-data class NFishUse(
-    override val techniqueName: String,
-    val fishes: List<Fish>,
-): TechniqueUse {
-    override val actions: List<Action>
-        get() = fishes.flatMap { it.removals }.distinct()
-}
-
 /** X-Wing, Swordfish, Jellyfish, Squirmbag */
-data class Fish(
+data class FishStep(
+    override val techniqueName: String,
     val digit: Int,
     val cells: Set<CellIndex>,
-    val removals: List<Action.RemoveCandidate>,
-)
+    override val actions: List<Action.RemoveCandidate>,
+): Step

@@ -5,14 +5,11 @@ import org.hildan.sudoku.model.*
 
 object BoxLineReduction : Technique {
 
-    override fun attemptOn(grid: Grid): BoxLineReductionUse? {
-        val reductions = ALL_DIGITS.flatMap { digit ->
-            grid.lines.mapNotNull { line -> grid.findBoxLineReduction(line, digit) }
-        }
-        return if (reductions.isEmpty()) null else BoxLineReductionUse(reductions)
+    override fun attemptOn(grid: Grid): List<BoxLineReductionStep> = ALL_DIGITS.flatMap { digit ->
+        grid.lines.mapNotNull { line -> grid.findBoxLineReduction(line, digit) }
     }
 
-    private fun Grid.findBoxLineReduction(line: GridUnit, digit: Int): Reduction? {
+    private fun Grid.findBoxLineReduction(line: GridUnit, digit: Int): BoxLineReductionStep? {
         val lineCells = line.emptyCellsWithCandidate(digit).groupBySets { it.box }
         // all cells of the line with this candidate are confined to a single box,
         // we can eliminate this candidate from the rest of that box
@@ -23,22 +20,18 @@ object BoxLineReduction : Technique {
         if (removals.isEmpty()) {
             return null
         }
-        return Reduction(box.id, line.id, digit, cellsToKeep.mapToIndices(), removals)
+        return BoxLineReductionStep(box.id, line.id, digit, cellsToKeep.mapToIndices(), removals)
     }
 }
 
-data class BoxLineReductionUse(
-    val reductions: List<Reduction>,
-): TechniqueUse {
-    override val techniqueName: String = "Box/Line Reduction"
-    override val actions: List<Action>
-        get() = reductions.flatMap { it.removals }.distinct()
-}
-
-data class Reduction(
+data class BoxLineReductionStep(
     val box: UnitId,
     val line: UnitId,
     val digit: Digit,
     val cells: Set<CellIndex>,
     val removals: List<Action.RemoveCandidate>,
-)
+): Step {
+    override val techniqueName: String = "Box/Line Reduction"
+    override val actions: List<Action>
+        get() = removals
+}
