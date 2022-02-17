@@ -48,9 +48,9 @@ data class PointingTupleStep(
     val cells: Set<CellIndex>,
     override val actions: List<Action.RemoveCandidate>,
 ): Step {
-    override val techniqueName: String = when {
-        cells.size == 2 -> "Pointing Pairs"
-        cells.size == 3 -> "Pointing Triples"
+    override val techniqueName: String = when (cells.size) {
+        2 -> "Pointing Pairs"
+        3 -> "Pointing Triples"
         else -> error("Cannot have a pointing tuple with more than 3 cells")
     }
 }

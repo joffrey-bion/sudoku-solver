@@ -10,7 +10,7 @@ object BoxLineReduction : Technique {
     }
 
     private fun Grid.findBoxLineReduction(line: GridUnit, digit: Int): BoxLineReductionStep? {
-        val lineCells = line.emptyCellsWithCandidate(digit).groupBySets { it.box }
+        val lineCells = line.emptyCellsWithCandidate(digit).groupIntoSetsBy { it.box }
         // all cells of the line with this candidate are confined to a single box,
         // we can eliminate this candidate from the rest of that box
         val (boxIndex, cellsToKeep) = lineCells.entries.singleOrNull() ?: return null
