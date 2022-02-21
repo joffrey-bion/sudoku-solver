@@ -48,9 +48,9 @@ class BacktrackingSolverTest {
     companion object {
 
         @JvmStatic
-        fun personalPuzzles(): List<Path> = Path("dataset/personal").listDirectoryEntries()
+        fun personalPuzzles(): List<Path> = Path("../dataset/personal").listDirectoryEntries()
 
         @JvmStatic
-        fun standardPuzzles(): List<Path> = Path("dataset/standard").listDirectoryEntries("puzzles*.txt")
+        fun standardPuzzles(): List<Path> = Path("../dataset/standard").listDirectoryEntries("puzzles*.txt")
     }
 }
