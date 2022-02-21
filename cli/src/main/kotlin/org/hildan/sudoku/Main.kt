@@ -7,8 +7,8 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
 
 @OptIn(ExperimentalTime::class)
-fun main() {
-    val input = readlnOrNull()
+fun main(args: Array<String>) {
+    val input = args.firstOrNull() ?: readlnOrNull()
     if (input == null) {
         println("Expected sudoku grid on stdin, 81 characters that are either digits 1-9, or '.' to denote empty cells")
         return
