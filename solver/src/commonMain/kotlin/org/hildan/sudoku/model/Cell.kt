@@ -8,10 +8,9 @@ import org.hildan.sudoku.solver.techniques.CellIndex
 class Cell(
     val row: Int,
     val col: Int,
-) {
     /** The digit set for this cell, or null if this cell is empty */
-    var value: Digit? = null
-
+    var value: Digit?,
+) {
     /** True if this cell's digit was not found. */
     val isEmpty: Boolean
         get() = value == null

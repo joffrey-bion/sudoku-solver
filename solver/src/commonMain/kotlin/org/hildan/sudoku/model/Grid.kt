@@ -3,36 +3,47 @@ package org.hildan.sudoku.model
 import org.hildan.sudoku.drawing.format
 
 /**
- * Represents a grid of Sudoku.
+ * Creates a grid of Sudoku.
  *
  * @param digits The digits to put in this `Grid`, listed row by row, from top to bottom, from left to right within a row.
  */
-class Grid(digits: String) {
-
-    init {
-        require(digits.length == NB_CELLS) { "there must be $NB_CELLS input digits, got ${digits.length}" }
+fun Grid(digits: String): Grid {
+    require(digits.length == Grid.NB_CELLS) { "there must be ${Grid.NB_CELLS} input digits, got ${digits.length}" }
+    val cells = digits.mapIndexed { index, char ->
+        Cell(
+            row = index / Grid.SIZE,
+            col = index % Grid.SIZE,
+            value = char.toCellValue(),
+        )
     }
+    return Grid(cells)
+}
 
+private fun Char.toCellValue() = when (this) {
+    in '1'..'9' -> digitToInt()
+    '.', ' ', '0' -> null
+    else -> throw IllegalArgumentException("only digits 0-${Grid.SIZE}, '.' or ' ' are accepted")
+}
+
+/**
+ * Represents a grid of Sudoku.
+ */
+class Grid(
+    /**
+     * The cells of this `Grid`, listed row by row, from top to bottom, from left to right within a row.
+     */
+    val cells: List<Cell>,
+) {
     /**
      * The list of the empty cells of this `Grid`.
      */
-    val emptyCells: MutableCollection<Cell> = HashSet()
+    val emptyCells: MutableCollection<Cell> = cells.filterTo(HashSet()) { it.isEmpty }
 
     /**
      * Whether this `Grid` is full of digits.
      */
     val isComplete: Boolean
         get() = emptyCells.isEmpty()
-
-    val cells: List<Cell> = digits.mapIndexed { index, c ->
-        Cell(row = index / SIZE, col = index % SIZE).also { cell ->
-            when (c) {
-                in '1'..'9' -> cell.value = c.digitToInt()
-                '.', ' ', '0' -> emptyCells.add(cell)
-                else -> throw IllegalArgumentException("wrong input at index $index, only digits 0-$SIZE, '.' or ' ' are accepted")
-            }
-        }
-    }
 
     val rows: List<GridUnit> = List(SIZE) { row ->
         GridUnit(UnitId(UnitType.ROW, row), cells = List(SIZE) { col -> get(row, col) })
