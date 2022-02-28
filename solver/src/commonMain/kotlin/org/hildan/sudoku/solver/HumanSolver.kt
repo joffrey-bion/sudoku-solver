@@ -37,31 +37,33 @@ class HumanSolver(
 
         val steps = mutableListOf<Step>()
         while (!grid.isComplete) {
-            val result = findApplicableTechnique(grid) ?: return SolveResult(solved = false, steps)
+            val result = orderedTechniques.firstApplicableTo(grid) ?: return SolveResult(solved = false, steps)
             steps.addAll(result)
-            result.flatMap { it.actions }.forEach {
-                it.applyTo(grid)
-            }
+            grid.performActions(result.flatMap { it.actions })
         }
         return SolveResult(solved = true, steps)
     }
 
-    private fun findApplicableTechnique(grid: Grid) = orderedTechniques.asSequence()
+    private fun List<Technique>.firstApplicableTo(grid: Grid) = asSequence()
         .map { it.attemptOn(grid) }
         .firstOrNull { it.isNotEmpty() }
 }
 
-private fun Action.applyTo(grid: Grid) {
-    when(this) {
+fun Grid.performActions(actions: List<Action>) {
+    actions.forEach(::performAction)
+}
+
+private fun Grid.performAction(action: Action) {
+    when(action) {
         is Action.PlaceDigit -> {
-            val cell = grid.cells[cellIndex]
-            cell.value = digit
+            val cell = cells[action.cellIndex]
+            cell.value = action.digit
             cell.removeValueFromSistersCandidates()
-            grid.emptyCells.remove(cell)
+            emptyCells.remove(cell)
         }
         is Action.RemoveCandidate -> {
-            val cell = grid.cells[cellIndex]
-            cell.candidates.remove(candidate)
+            val cell = cells[action.cellIndex]
+            cell.candidates.remove(action.candidate)
         }
     }
 }
