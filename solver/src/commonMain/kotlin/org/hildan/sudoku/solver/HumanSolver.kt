@@ -32,7 +32,7 @@ class HumanSolver(
     )
 ) {
     fun solve(grid: Grid): SolveResult {
-        val stillValid = grid.clearImpossibleValues()
+        val stillValid = grid.removeImpossibleCandidates()
         require(stillValid) { "Incorrect clues in the given grid." }
 
         val steps = mutableListOf<Step>()

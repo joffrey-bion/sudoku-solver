@@ -85,11 +85,11 @@ class Grid(
     operator fun get(row: Int, col: Int) = cells[row * SIZE + col]
 
     /**
-     * Iterates on complete [Cell]s and remove the corresponding value in the empty sister `Cell`s.
+     * Iterates on complete [Cell]s and remove the corresponding candidates in the empty sister `Cell`s.
      *
-     * @return `false` if an empty [Cell] ends up with no possible value.
+     * @return `false` if an empty [Cell] ends up with no candidate.
      */
-    fun clearImpossibleValues(): Boolean {
+    fun removeImpossibleCandidates(): Boolean {
         for (cell in cells) {
             if (cell.isEmpty) {
                 continue  // do not consider empty cells

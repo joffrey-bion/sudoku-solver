@@ -18,7 +18,7 @@ fun Grid.solveWithBacktracking(): Int {
     if (USE_FORWARD_CHECK) {
         // find the clue-cells and remove the possible values in the impacted
         // empty cells before starting the search.
-        val stillValid = clearImpossibleValues()
+        val stillValid = removeImpossibleCandidates()
         require(stillValid) { "Incorrect clues in the given grid." }
     }
     return backtracking(this)
