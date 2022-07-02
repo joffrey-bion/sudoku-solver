@@ -21,6 +21,8 @@ data class NakedSinglesStep(
     override val actions: List<Action.PlaceDigit>,
 ): Step {
     override val techniqueName: String = "Naked Singles"
+    override val description: String = "The cells ${cellRefs(actions.map { it.cellIndex })} only have 1 candidate " +
+        "left. We can therefore place the corresponding digits."
 }
 
 object NakedPairs : NakedTuples("Naked Pairs", tupleSize = 2)
@@ -93,4 +95,8 @@ data class NakedTupleStep(
     val tuple: Set<Digit>,
     val cells: Set<CellIndex>,
     override val actions: List<Action.RemoveCandidate>,
-): Step
+): Step {
+    override val description: String = "The ${tuple.size} digits $tuple are the only ones to appear in exactly " +
+        "${tuple.size} cells (${cellRefs(cells)}) in $unit. All of those digits must therefore be in those cells, and" +
+        " cannot be in any other cell of $unit."
+}

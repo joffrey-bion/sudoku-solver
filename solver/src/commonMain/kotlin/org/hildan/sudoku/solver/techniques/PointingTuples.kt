@@ -53,4 +53,6 @@ data class PointingTupleStep(
         3 -> "Pointing Triples"
         else -> error("Cannot have a pointing tuple with more than 3 cells")
     }
+    override val description: String
+        get() = "" // TODO
 }

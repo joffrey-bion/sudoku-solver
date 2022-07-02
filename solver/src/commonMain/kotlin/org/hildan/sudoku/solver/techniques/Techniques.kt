@@ -5,6 +5,9 @@ import org.hildan.sudoku.model.Grid
 
 typealias CellIndex = Int // SIZE * row + col
 
+fun cellRef(index: CellIndex) = "r${index / Grid.SIZE}c${index % Grid.SIZE}"
+fun cellRefs(indices: Iterable<CellIndex>) = indices.map { cellRef(it) }.toString()
+
 interface Technique {
 
     /**
@@ -16,6 +19,7 @@ interface Technique {
 
 sealed interface Step {
     val techniqueName: String
+    val description: String
     val actions: List<Action>
 }
 

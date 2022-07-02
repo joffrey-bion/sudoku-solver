@@ -35,13 +35,23 @@ open class NFish(
         val groups = definingUnits.groupUnitsByIndicesOfOccurrenceOf(digit = digit)
         groups.forEach { (indices, definingSet) ->
             if (definingSet.size == dimension) {
+                val secondarySet = secondaryUnits.slice(indices)
                 val removals = candidateRemovalActions(
                     digit = digit,
                     definingSet = definingSet,
-                    secondarySet = secondaryUnits.slice(indices),
+                    secondarySet = secondarySet,
                 )
                 if (removals.isNotEmpty()) {
-                    fishes.add(FishStep(techniqueName, digit = digit, cells = indices, actions = removals))
+                    fishes.add(
+                        FishStep(
+                            techniqueName = techniqueName,
+                            digit = digit,
+                            cells = indices,
+                            definingSet = definingSet,
+                            secondarySet = secondarySet.toSet(),
+                            actions = removals,
+                        )
+                    )
                 }
             }
         }
@@ -81,5 +91,11 @@ data class FishStep(
     override val techniqueName: String,
     val digit: Int,
     val cells: Set<CellIndex>,
+    val definingSet: Set<GridUnit>,
+    val secondarySet: Set<GridUnit>,
     override val actions: List<Action.RemoveCandidate>,
-): Step
+): Step {
+    override val description: String
+        get() = "Within ${definingSet}, the digit $digit only appears in the same positions $secondarySet. " +
+            "We know there must be ${definingSet.size} in those"
+}

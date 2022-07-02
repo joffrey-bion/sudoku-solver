@@ -19,10 +19,13 @@ object HiddenSingles : Technique {
     }
 }
 
+// TODO make each hidden single an independent step?
 data class HiddenSinglesStep(
     override val actions: List<Action.PlaceDigit>,
 ): Step {
     override val techniqueName: String = "Hidden Singles"
+    override val description: String = "The digits ${actions.map { it.digit }} only occur once in a unit (row, column" +
+        " or box) so they can be placed there."
 }
 
 object HiddenPairs : HiddenTuples("Hidden Pairs", tupleSize = 2)
@@ -95,4 +98,8 @@ data class HiddenTupleStep(
     val tuple: Set<Digit>,
     val cells: Set<CellIndex>,
     override val actions: List<Action.RemoveCandidate>,
-): Step
+): Step {
+    override val description: String = "Within $unit, the digits $tuple appear exclusively in cells ${cellRefs(cells)}. " +
+        "All of those ${tuple.size} digits must therefore occupy those ${cells.size} cells, so no other digits can be" +
+        " placed in those cells. We can therefore remove all other candidates from those cells."
+}

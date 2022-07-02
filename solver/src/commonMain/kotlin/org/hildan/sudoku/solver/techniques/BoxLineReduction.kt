@@ -32,6 +32,9 @@ data class BoxLineReductionStep(
     val removals: List<Action.RemoveCandidate>,
 ): Step {
     override val techniqueName: String = "Box/Line Reduction"
+    override val description: String = "The digit $digit in $line is confined to cells ${cellRefs(cells)}, which " +
+        "happen to all be in $box. Since $digit must be in one of those cells, it cannot be in any other cells of $box."
+
     override val actions: List<Action>
         get() = removals
 }
