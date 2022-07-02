@@ -101,6 +101,8 @@ class Grid(
         return true
     }
 
+    fun copy() = Grid(cells.map { Cell(it.row, it.col, it.value) })
+
     /**
      * Prints the grid with fancy lines.
      */
